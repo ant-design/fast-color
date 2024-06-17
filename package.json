@@ -40,6 +40,7 @@
     "now-build": "npm run build"
   },
   "devDependencies": {
+    "@ctrl/tinycolor": "^4.1.0",
     "@rc-component/father-plugin": "^1.0.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.2",
