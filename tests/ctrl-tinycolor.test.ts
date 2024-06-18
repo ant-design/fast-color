@@ -2,7 +2,7 @@
 
 import { FastColor } from '../src';
 
-describe('TinyColor', () => {
+describe('@ctrl/tinycolor compatibility', () => {
   it('should init', () => {
     const r = new FastColor('#66ccff');
     expect(r.toHexString()).toBe('#66ccff');

@@ -33,10 +33,19 @@ export class FastColor {
           this.a = trimed[8] ? parseInt(trimed[7] + trimed[8], 16) / 255 : 1;
         }
       } else if (trimed.startsWith('rgb(')) {
-        const arr = trimed.substring(4, trimed.length - 1).split(',');
-        this.r = parseInt(arr[0]);
-        this.g = parseInt(arr[1]);
-        this.b = parseInt(arr[2]);
+        const str = trimed.substring(4, trimed.length - 1);
+        const arr = str.includes(',')
+          ? str.split(',')
+          : str.split(' ').filter((item) => item.length > 0);
+        this.r = arr[0].includes('%')
+          ? Math.round((parseInt(arr[0]) / 100) * 255)
+          : parseInt(arr[0]);
+        this.g = arr[1].includes('%')
+          ? Math.round((parseInt(arr[1]) / 100) * 255)
+          : parseInt(arr[1]);
+        this.b = arr[2].includes('%')
+          ? Math.round((parseInt(arr[2]) / 100) * 255)
+          : parseInt(arr[2]);
         this.a = 1;
       } else if (trimed.startsWith('rgba(')) {
         const arr = trimed.substring(5, trimed.length - 1).split(',');
