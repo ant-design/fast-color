@@ -38,21 +38,35 @@ export class FastColor {
           ? str.split(',')
           : str.split(' ').filter((item) => item.length > 0);
         this.r = arr[0].includes('%')
-          ? Math.round((parseInt(arr[0]) / 100) * 255)
+          ? Math.round((parseFloat(arr[0]) / 100) * 255)
           : parseInt(arr[0]);
         this.g = arr[1].includes('%')
-          ? Math.round((parseInt(arr[1]) / 100) * 255)
+          ? Math.round((parseFloat(arr[1]) / 100) * 255)
           : parseInt(arr[1]);
         this.b = arr[2].includes('%')
-          ? Math.round((parseInt(arr[2]) / 100) * 255)
+          ? Math.round((parseFloat(arr[2]) / 100) * 255)
           : parseInt(arr[2]);
         this.a = 1;
       } else if (trimed.startsWith('rgba(')) {
-        const arr = trimed.substring(5, trimed.length - 1).split(',');
-        this.r = parseInt(arr[0]);
-        this.g = parseInt(arr[1]);
-        this.b = parseInt(arr[2]);
-        this.a = parseFloat(arr[3]);
+        const str = trimed.substring(5, trimed.length - 1);
+        const arr = str.includes(',')
+          ? str.split(',')
+          : str
+              .replace('/', ' ')
+              .split(' ')
+              .filter((item) => item.length > 0);
+        this.r = arr[0].includes('%')
+          ? Math.round((parseFloat(arr[0]) / 100) * 255)
+          : parseInt(arr[0]);
+        this.g = arr[1].includes('%')
+          ? Math.round((parseFloat(arr[1]) / 100) * 255)
+          : parseInt(arr[1]);
+        this.b = arr[2].includes('%')
+          ? Math.round((parseFloat(arr[2]) / 100) * 255)
+          : parseInt(arr[2]);
+        this.a = arr[2].includes('%')
+          ? parseFloat(arr[3]) / 100
+          : parseFloat(arr[3]);
       }
     } else if ('l' in input) {
       this.fromHSLA(input);
