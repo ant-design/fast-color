@@ -105,12 +105,16 @@ export class FastColor {
 
   get isValid() {
     return (
+      typeof this.r === 'number' &&
       this.r >= 0 &&
       this.r <= 255 &&
+      typeof this.g === 'number' &&
       this.g >= 0 &&
       this.g <= 255 &&
+      typeof this.b === 'number' &&
       this.b >= 0 &&
       this.b <= 255 &&
+      typeof this.a === 'number' &&
       this.a >= 0 &&
       this.a <= 1
     );

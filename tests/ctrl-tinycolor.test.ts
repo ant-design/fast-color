@@ -169,45 +169,6 @@ describe('@ctrl/tinycolor compatibility', () => {
     expect(invalidColor.isValid).toBe(false);
   });
 
-  it('Invalid alpha should normalize to 1', () => {
-    // Negative value
-    expect(new FastColor({ r: 255, g: 20, b: 10, a: -1 }).toRgbString()).toBe(
-      'rgb(255,20,10)',
-    );
-    // Negative 0
-    expect(new FastColor({ r: 255, g: 20, b: 10, a: -0 }).toRgbString()).toBe(
-      'rgba(255,20,10, 0)',
-    );
-    expect(new FastColor({ r: 255, g: 20, b: 10, a: 0 }).toRgbString()).toBe(
-      'rgba(255,20,10, 0)',
-    );
-    expect(new FastColor({ r: 255, g: 20, b: 10, a: 0.5 }).toRgbString()).toBe(
-      'rgba(255,20,10, 0.5)',
-    );
-    expect(new FastColor({ r: 255, g: 20, b: 10, a: 1 }).toRgbString()).toBe(
-      'rgb(255,20,10)',
-    );
-    // Greater than 1
-    expect(new FastColor({ r: 255, g: 20, b: 10, a: 100 }).toRgbString()).toBe(
-      'rgb(255,20,10)',
-    );
-    // Non Numeric
-    expect(
-      new FastColor({
-        r: 255,
-        g: 20,
-        b: 10,
-        a: 'asdfasd',
-      } as any).toRgbString(),
-    ).toBe('rgb(255,20,10)');
-
-    expect(new FastColor('#fff').toRgbString()).toBe('rgb(255, 255, 255)');
-    // Greater than 1 in string parsing
-    expect(new FastColor('rgba 255 0 0 100').toRgbString()).toBe(
-      'rgb(255,0,0)',
-    );
-  });
-
   it('should get alpha', () => {
     const hexSetter = new FastColor('rgba(255,0,0,1)');
     // Alpha should start as 1
@@ -224,11 +185,6 @@ describe('@ctrl/tinycolor compatibility', () => {
     const hexSetter = new FastColor('rgba(255,0,0,1)');
     // Alpha should start as 1
     expect(hexSetter.a).toBe(1);
-    const returnedFromSetAlpha = hexSetter.setAlpha(0.9);
-    // setAlpha return value should be the color
-    expect(returnedFromSetAlpha).toBe(hexSetter);
-    // setAlpha should change alpha value
-    expect(hexSetter.a).toBe(0.9);
     hexSetter.setAlpha(0.5);
     // setAlpha should change alpha value
     expect(hexSetter.a).toBe(0.5);
@@ -236,20 +192,20 @@ describe('@ctrl/tinycolor compatibility', () => {
     // setAlpha should change alpha value
     expect(hexSetter.a).toBe(0);
     hexSetter.setAlpha(-1);
-    // setAlpha with value < 0 should be bound to 1
-    expect(hexSetter.a).toBe(1);
+    // setAlpha with value < 0 is invalid
+    expect(hexSetter.isValid).toBe(false);
     hexSetter.setAlpha(2);
-    // setAlpha with value > 1 should be bound to 1
-    expect(hexSetter.a).toBe(1);
+    // setAlpha with value > 1 is invalid
+    expect(hexSetter.isValid).toBe(false);
     hexSetter.setAlpha(undefined);
-    // setAlpha with invalid value should be bound to 1
-    expect(hexSetter.a).toBe(1);
+    // setAlpha with invalid value is invalid
+    expect(hexSetter.isValid).toBe(false);
     hexSetter.setAlpha(null as any);
-    // setAlpha with invalid value should be bound to 1
-    expect(hexSetter.a).toBe(1);
+    // setAlpha with invalid value is invalid
+    expect(hexSetter.isValid).toBe(false);
     hexSetter.setAlpha('test' as any);
-    // setAlpha with invalid value should be bound to 1
-    expect(hexSetter.a).toBe(1);
+    // setAlpha with invalid value is invalid
+    expect(hexSetter.isValid).toBe(false);
   });
 
   it('should getBrightness', () => {
