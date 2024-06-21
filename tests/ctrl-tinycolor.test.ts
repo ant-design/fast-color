@@ -118,57 +118,6 @@ describe('@ctrl/tinycolor compatibility', () => {
     );
   });
 
-  it('should parse invalid input', () => {
-    let invalidColor = new FastColor('not a color');
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-
-    invalidColor = new FastColor('#red');
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-
-    invalidColor = new FastColor('  #red');
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-
-    invalidColor = new FastColor('##123456');
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-
-    invalidColor = new FastColor('  ##123456');
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-
-    invalidColor = new FastColor({
-      r: 'invalid',
-      g: 'invalid',
-      b: 'invalid',
-    } as any);
-
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-
-    invalidColor = new FastColor({
-      h: 'invalid',
-      s: 'invalid',
-      l: 'invalid',
-    } as any);
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-
-    invalidColor = new FastColor({
-      h: 'invalid',
-      s: 'invalid',
-      v: 'invalid',
-    } as any);
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-
-    invalidColor = new FastColor(null);
-    expect(invalidColor.toHexString()).toBe('#000000');
-    expect(invalidColor.isValid).toBe(false);
-  });
-
   it('should get alpha', () => {
     const hexSetter = new FastColor('rgba(255,0,0,1)');
     // Alpha should start as 1

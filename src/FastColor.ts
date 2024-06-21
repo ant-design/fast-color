@@ -251,13 +251,13 @@ export class FastColor {
 
   toHexString(): string {
     let hex = '#';
-    const rHex = this.r.toString(16);
+    const rHex = (this.r || 0).toString(16);
     hex += rHex.length === 2 ? rHex : '0' + rHex;
-    const gHex = this.g.toString(16);
+    const gHex = (this.g || 0).toString(16);
     hex += gHex.length === 2 ? gHex : '0' + gHex;
-    const bHex = this.b.toString(16);
+    const bHex = (this.b || 0).toString(16);
     hex += bHex.length === 2 ? bHex : '0' + bHex;
-    if (this.a !== 1) {
+    if (typeof this.a === 'number' && this.a >= 0 && this.a < 1) {
       const aHex = Math.round(this.a * 255).toString(16);
       hex += aHex.length === 2 ? aHex : '0' + aHex;
     }
