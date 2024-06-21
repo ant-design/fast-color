@@ -6,4 +6,13 @@ describe('hsv', () => {
       '#472966',
     );
   });
+
+  it('hex to hsv object', () => {
+    expect(new FastColor('#472966').toHsv()).toEqual({
+      h: 270,
+      s: 0.42657342657342656,
+      v: 0.4,
+      a: 1,
+    });
+  });
 });

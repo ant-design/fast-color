@@ -173,13 +173,14 @@ export class FastColor {
         this._h = 0;
       } else {
         const delta = this.max - this.min;
-        this._h =
+        this._h = Math.round(
           60 *
-          (this.r === this.max
-            ? (this.g - this.b) / delta + (this.g < this.b ? 6 : 0)
-            : this.g === this.max
-            ? (this.b - this.r) / delta + 2
-            : (this.r - this.g) / delta + 4);
+            (this.r === this.max
+              ? (this.g - this.b) / delta + (this.g < this.b ? 6 : 0)
+              : this.g === this.max
+              ? (this.b - this.r) / delta + 2
+              : (this.r - this.g) / delta + 4),
+        );
       }
     }
     return this._h;
