@@ -1,17 +1,30 @@
-import type { ColorInput, HSL, RGB } from './types';
+import type { ColorInput, HSL, HSV, RGB } from './types';
 
 export class FastColor {
+  /**
+   * Red, R in RGB
+   */
   r: number;
+  /**
+   * Green, G in RGB
+   */
   g: number;
+  /**
+   * Blue, B in RGB
+   */
   b: number;
+  /**
+   * Alpha/Opacity, A in RGBA/HSLA
+   */
   a: number;
 
-  // HSL values are initialized on demand and they are read only.
+  // HSV privates
   private _h?: number;
   private _s?: number;
   private _l?: number;
+  private _v?: number;
 
-  // intermedia variables to calculate HSL
+  // intermedia variables to calculate HSL/HSV
   private _max?: number;
   private _min?: number;
 
@@ -29,6 +42,8 @@ export class FastColor {
       }
     } else if ('l' in input) {
       this.fromHsl(input);
+    } else if ('v' in input) {
+      this.fromHsv(input);
     } else {
       this.r = input.r;
       this.g = input.g;
@@ -37,16 +52,32 @@ export class FastColor {
     }
   }
 
+  /**
+   * Hue, H in HSL/HSV
+   */
   get h() {
     return this.getHue();
   }
 
+  /**
+   * Saturation, S in HSL/HSV
+   */
   get s() {
     return this.getSaturation();
   }
 
+  /**
+   * Lightness, L in HSL
+   */
   get l() {
     return this.getLightness();
+  }
+
+  /**
+   * Value, V in HSV
+   */
+  get v() {
+    return this.getValue();
   }
 
   get isValid() {
@@ -66,11 +97,11 @@ export class FastColor {
     );
   }
 
-  clone() {
+  clone(): FastColor {
     return new FastColor(this);
   }
 
-  equals(other: FastColor) {
+  equals(other: FastColor): boolean {
     return (
       this.r === other.r &&
       this.g === other.g &&
@@ -99,7 +130,7 @@ export class FastColor {
     return new FastColor({ h, s, l, a: this.a });
   }
 
-  getAlpha() {
+  getAlpha(): number {
     return this.a;
   }
 
@@ -136,7 +167,7 @@ export class FastColor {
     return 0.2126 * R + 0.7152 * G + 0.0722 * B;
   }
 
-  getHue() {
+  getHue(): number {
     if (typeof this._h === 'undefined') {
       if (this.max === this.min) {
         this._h = 0;
@@ -154,7 +185,7 @@ export class FastColor {
     return this._h;
   }
 
-  getSaturation() {
+  getSaturation(): number {
     if (typeof this._s === 'undefined') {
       if (this.max === this.min) {
         this._s = 0;
@@ -172,6 +203,13 @@ export class FastColor {
       this._l = (this.max + this.min) / 510;
     }
     return this._l;
+  }
+
+  getValue(): number {
+    if (typeof this._v === 'undefined') {
+      this._v = this.max / 255;
+    }
+    return this._v;
   }
 
   isDark(): boolean {
@@ -241,6 +279,15 @@ export class FastColor {
       : `hsl(${h},${s}%,${l}%)`;
   }
 
+  toHsv(): HSV {
+    return {
+      h: this.h,
+      s: this.s,
+      v: this.v,
+      a: this.a,
+    };
+  }
+
   toRgb(): RGB {
     return {
       r: this.r,
@@ -290,15 +337,17 @@ export class FastColor {
     }
   }
 
-  private fromHsl({ h, s, l, a }: HSL) {
+  private fromHsl({ h, s, l, a }: HSL): void {
     this._h = h % 360;
     this._s = s;
     this._l = l;
     this.a = typeof a === 'number' ? a : 1;
 
-    if (s === 0) {
+    if (s <= 0) {
       const rgb = Math.round(l * 255);
-      return new FastColor({ r: rgb, g: rgb, b: rgb, a });
+      this.r = rgb;
+      this.g = rgb;
+      this.b = rgb;
     }
 
     const huePrime = h / 60;
@@ -333,6 +382,57 @@ export class FastColor {
     this.r = Math.round((this.r + lightnessModification) * 255);
     this.g = Math.round((this.g + lightnessModification) * 255);
     this.b = Math.round((this.b + lightnessModification) * 255);
+  }
+
+  private fromHsv({ h, s, v, a }: HSV): void {
+    this._h = h % 360;
+    this._s = s;
+    this._v = v;
+    this.a = typeof a === 'number' ? a : 1;
+
+    const vv = Math.round(v * 255);
+    this.r = vv;
+    this.g = vv;
+    this.b = vv;
+
+    if (s <= 0) {
+      return;
+    }
+
+    const hh = h / 60;
+    const i = Math.floor(hh);
+    const ff = hh - i;
+    const p = Math.round(v * (1.0 - s) * 255);
+    const q = Math.round(v * (1.0 - s * ff) * 255);
+    const t = Math.round(v * (1.0 - s * (1.0 - ff)) * 255);
+
+    switch (i) {
+      case 0:
+        this.g = t;
+        this.b = p;
+        break;
+      case 1:
+        this.r = q;
+        this.b = p;
+        break;
+      case 2:
+        this.r = p;
+        this.b = t;
+        break;
+      case 3:
+        this.r = p;
+        this.g = q;
+        break;
+      case 4:
+        this.r = t;
+        this.g = p;
+        break;
+      case 5:
+      default:
+        this.g = p;
+        this.b = q;
+        break;
+    }
   }
 
   private fromHslString(trimed: string) {

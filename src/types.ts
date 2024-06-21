@@ -12,4 +12,11 @@ export interface HSL {
   a?: number;
 }
 
-export type ColorInput = string | RGB | HSL;
+export interface HSV {
+  h: number;
+  s: number;
+  v: number;
+  a?: number;
+}
+
+export type ColorInput = string | RGB | HSL | HSV;
