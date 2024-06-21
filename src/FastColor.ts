@@ -1,4 +1,4 @@
-import type { ColorInput, HSLA as HSL, RGBA as RGB } from './types';
+import type { ColorInput, HSL, RGB } from './types';
 
 export class FastColor {
   r: number;
