@@ -1,4 +1,4 @@
-import type { ColorInput, HSLA, RGBA } from './types';
+import type { ColorInput, HSLA as HSL, RGBA as RGB } from './types';
 
 export class FastColor {
   r: number;
@@ -21,74 +21,20 @@ export class FastColor {
     if (typeof input === 'string') {
       const trimed = input.trim();
       if (trimed[0] === '#') {
-        if (trimed.length < 6) {
-          this.r = parseInt(trimed[1] + trimed[1], 16);
-          this.g = parseInt(trimed[2] + trimed[2], 16);
-          this.b = parseInt(trimed[3] + trimed[3], 16);
-          this.a = trimed[4] ? parseInt(trimed[4] + trimed[4], 16) / 255 : 1;
-        } else {
-          this.r = parseInt(trimed[1] + trimed[2], 16);
-          this.g = parseInt(trimed[3] + trimed[4], 16);
-          this.b = parseInt(trimed[5] + trimed[6], 16);
-          this.a = trimed[8] ? parseInt(trimed[7] + trimed[8], 16) / 255 : 1;
-        }
-      } else if (trimed.startsWith('rgb(')) {
-        const str = trimed.substring(4, trimed.length - 1);
-        const arr = str.includes(',')
-          ? str.split(',')
-          : str.split(' ').filter((item) => item.length > 0);
-        this.r = arr[0].includes('%')
-          ? Math.round((parseFloat(arr[0]) / 100) * 255)
-          : parseInt(arr[0]);
-        this.g = arr[1].includes('%')
-          ? Math.round((parseFloat(arr[1]) / 100) * 255)
-          : parseInt(arr[1]);
-        this.b = arr[2].includes('%')
-          ? Math.round((parseFloat(arr[2]) / 100) * 255)
-          : parseInt(arr[2]);
-        this.a = 1;
-      } else if (trimed.startsWith('rgba(')) {
-        const str = trimed.substring(5, trimed.length - 1);
-        const arr = str.includes(',')
-          ? str.split(',')
-          : str
-              .replace('/', ' ')
-              .split(' ')
-              .filter((item) => item.length > 0);
-        this.r = arr[0].includes('%')
-          ? Math.round((parseFloat(arr[0]) / 100) * 255)
-          : parseInt(arr[0]);
-        this.g = arr[1].includes('%')
-          ? Math.round((parseFloat(arr[1]) / 100) * 255)
-          : parseInt(arr[1]);
-        this.b = arr[2].includes('%')
-          ? Math.round((parseFloat(arr[2]) / 100) * 255)
-          : parseInt(arr[2]);
-        this.a = arr[2].includes('%')
-          ? parseFloat(arr[3]) / 100
-          : parseFloat(arr[3]);
+        this.fromHexString(trimed);
+      } else if (trimed.startsWith('rgb')) {
+        this.fromRgbString(trimed);
+      } else if (trimed.startsWith('hsl')) {
+        this.fromHslString(trimed);
       }
     } else if ('l' in input) {
-      this.fromHSLA(input);
+      this.fromHsl(input);
     } else {
       this.r = input.r;
       this.g = input.g;
       this.b = input.b;
       this.a = typeof input.a === 'number' ? input.a : 1;
     }
-  }
-
-  clone() {
-    return new FastColor(this);
-  }
-
-  equals(other: FastColor) {
-    return (
-      this.r === other.r &&
-      this.g === other.g &&
-      this.b === other.b &&
-      this.a === other.a
-    );
   }
 
   get h() {
@@ -117,6 +63,19 @@ export class FastColor {
       typeof this.a === 'number' &&
       this.a >= 0 &&
       this.a <= 1
+    );
+  }
+
+  clone() {
+    return new FastColor(this);
+  }
+
+  equals(other: FastColor) {
+    return (
+      this.r === other.r &&
+      this.g === other.g &&
+      this.b === other.b &&
+      this.a === other.a
     );
   }
 
@@ -264,7 +223,7 @@ export class FastColor {
     return hex;
   }
 
-  toHsl(): HSLA {
+  toHsl(): HSL {
     return {
       h: this.h,
       s: this.s,
@@ -272,7 +231,17 @@ export class FastColor {
     };
   }
 
-  toRgb(): RGBA {
+  toHslString(): string {
+    const h = this.h;
+    const s = Math.round(this.s * 100);
+    const l = Math.round(this.l * 100);
+
+    return this.a !== 1
+      ? `hsla(${h},${s}%,${l}%,${this.a})`
+      : `hsl(${h},${s}%,${l}%)`;
+  }
+
+  toRgb(): RGB {
     return {
       r: this.r,
       g: this.g,
@@ -283,7 +252,7 @@ export class FastColor {
 
   toRgbString(): string {
     return this.a !== 1
-      ? `rgba(${this.r},${this.g},${this.b},${this.a.toPrecision(2)})`
+      ? `rgba(${this.r},${this.g},${this.b},${this.a})`
       : `rgb(${this.r},${this.g},${this.b})`;
   }
 
@@ -305,8 +274,24 @@ export class FastColor {
     return this._min;
   }
 
-  private fromHSLA({ h, s, l, a }: HSLA) {
-    this._h = h;
+  private fromHexString(trimed: string) {
+    if (trimed.length < 6) {
+      // #rgb or #rgba
+      this.r = parseInt(trimed[1] + trimed[1], 16);
+      this.g = parseInt(trimed[2] + trimed[2], 16);
+      this.b = parseInt(trimed[3] + trimed[3], 16);
+      this.a = trimed[4] ? parseInt(trimed[4] + trimed[4], 16) / 255 : 1;
+    } else {
+      // #rrggbb or #rrggbbaa
+      this.r = parseInt(trimed[1] + trimed[2], 16);
+      this.g = parseInt(trimed[3] + trimed[4], 16);
+      this.b = parseInt(trimed[5] + trimed[6], 16);
+      this.a = trimed[8] ? parseInt(trimed[7] + trimed[8], 16) / 255 : 1;
+    }
+  }
+
+  private fromHsl({ h, s, l, a }: HSL) {
+    this._h = h % 360;
     this._s = s;
     this._l = l;
     this.a = typeof a === 'number' ? a : 1;
@@ -348,5 +333,48 @@ export class FastColor {
     this.r = Math.round((this.r + lightnessModification) * 255);
     this.g = Math.round((this.g + lightnessModification) * 255);
     this.b = Math.round((this.b + lightnessModification) * 255);
+  }
+
+  private fromHslString(trimed: string) {
+    const str = trimed.substring(trimed.indexOf('(') + 1, trimed.indexOf(')'));
+    const arr = str.includes(',')
+      ? str.split(',')
+      : str
+          .replace('/', ' ')
+          .split(' ')
+          .filter((item) => item.length > 0);
+    const h = parseInt(arr[0]);
+    const s = parseFloat(arr[1]) / 100;
+    const l = parseFloat(arr[2]) / 100;
+    const a = arr[3]
+      ? arr[3].includes('%')
+        ? parseFloat(arr[3]) / 100
+        : parseFloat(arr[3])
+      : 1;
+    this.fromHsl({ h, s, l, a });
+  }
+
+  private fromRgbString(trimed: string) {
+    const str = trimed.substring(trimed.indexOf('(') + 1, trimed.indexOf(')'));
+    const arr = str.includes(',')
+      ? str.split(',')
+      : str
+          .replace('/', ' ')
+          .split(' ')
+          .filter((item) => item.length > 0);
+    this.r = arr[0].includes('%')
+      ? Math.round((parseFloat(arr[0]) / 100) * 255)
+      : parseInt(arr[0]);
+    this.g = arr[1].includes('%')
+      ? Math.round((parseFloat(arr[1]) / 100) * 255)
+      : parseInt(arr[1]);
+    this.b = arr[2].includes('%')
+      ? Math.round((parseFloat(arr[2]) / 100) * 255)
+      : parseInt(arr[2]);
+    this.a = arr[3]
+      ? arr[3].includes('%')
+        ? parseFloat(arr[3]) / 100
+        : parseFloat(arr[3])
+      : 1;
   }
 }

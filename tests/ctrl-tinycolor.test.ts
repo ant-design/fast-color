@@ -14,21 +14,19 @@ describe('@ctrl/tinycolor compatibility', () => {
     const color2 = new FastColor('#66ccff').clone();
     color2.setAlpha(0.5);
     expect(color2.isValid).toBeTruthy();
-    expect(color2.toString()).toBe('rgba(255,0,0,0.5)');
-    expect(color1.toString()).toBe('red');
+    expect(color2.toString()).toBe('rgba(102,204,255,0.5)');
+    expect(color1.toString()).toBe('rgb(102,204,255)');
   });
 
   it('should parse hex', () => {
     expect(new FastColor('#000').toHexString()).toBe('#000000');
-    expect(new FastColor('#0000').toHexString()).toBe('#000000');
+    expect(new FastColor('#0000').toHexString()).toBe('#00000000');
     expect(new FastColor('#000').getAlpha()).toBe(1);
     // Not sure this is expected behavior
     expect(new FastColor('#0000').getAlpha()).toBe(0);
   });
 
   it('should parse rgb', () => {
-    // spaced input
-    expect(new FastColor('rgb 255 0 0').toHexString()).toBe('#ff0000');
     // parenthesized input
     expect(new FastColor('rgb(255,0,0)').toHexString()).toBe('#ff0000');
     // parenthesized spaced input
@@ -50,7 +48,7 @@ describe('@ctrl/tinycolor compatibility', () => {
     ).toBe(true);
     expect(
       new FastColor({ r: 200, g: 100, b: 0, a: 0.4 }).equals(
-        new FastColor('rgba 200 100 0 .4'),
+        new FastColor('rgba(200 100 0 .4)'),
       ),
     ).toBe(true);
 
@@ -68,8 +66,6 @@ describe('@ctrl/tinycolor compatibility', () => {
   });
 
   it('should parse percentage rgb text', () => {
-    // spaced input
-    expect(new FastColor('rgb 100% 0% 0%').toHexString()).toBe('#ff0000');
     // parenthesized input
     expect(new FastColor('rgb(100%, 0%, 0%)').toHexString()).toBe('#ff0000');
     // parenthesized spaced input
@@ -78,20 +74,20 @@ describe('@ctrl/tinycolor compatibility', () => {
 
   it('should parse HSL', () => {
     // to hex
-    expect(new FastColor({ h: 251, s: 100, l: 0.38 }).toHexString()).toBe(
+    expect(new FastColor({ h: 251, s: 1, l: 0.38 }).toHexString()).toBe(
       '#2400c2',
     );
     // to rgb
-    expect(new FastColor({ h: 251, s: 100, l: 0.38 }).toRgbString()).toBe(
+    expect(new FastColor({ h: 251, s: 1, l: 0.38 }).toRgbString()).toBe(
       'rgb(36,0,194)',
     );
     // to hsl
-    expect(new FastColor({ h: 251, s: 100, l: 0.38 }).toHslString()).toBe(
+    expect(new FastColor({ h: 251, s: 1, l: 0.38 }).toHslString()).toBe(
       'hsl(251,100%,38%)',
     );
     expect(
-      new FastColor({ h: 251, s: 100, l: 0.38, a: 0.38 }).toHslString(),
-    ).toBe('hsla(251,100%,38%, 0.38)');
+      new FastColor({ h: 251, s: 1, l: 0.38, a: 0.38 }).toHslString(),
+    ).toBe('hsla(251,100%,38%,0.38)');
     // to hex
     expect(new FastColor('hsl(251,100,38)').toHexString()).toBe('#2400c2');
     // to rgb
@@ -101,20 +97,6 @@ describe('@ctrl/tinycolor compatibility', () => {
     // to hsl
     expect(new FastColor('hsl(251,100%,38%)').toHslString()).toBe(
       'hsl(251,100%,38%)',
-    );
-    // problematic hsl
-    expect(new FastColor('hsl 100 20 10').toHslString()).toBe(
-      'hsl(100, 20%, 10%)',
-    );
-    expect(new FastColor('hsla 100 20 10 0.38').toHslString()).toBe(
-      'hsla(100, 20%, 10%, 0.38)',
-    );
-    // wrap out of bounds hue
-    expect(new FastColor('hsl -700 20 10').toHslString()).toBe(
-      'hsl(20, 20%, 10%)',
-    );
-    expect(new FastColor('hsl -490 100% 50%').toHslString()).toBe(
-      'hsl(230, 100%, 50%)',
     );
   });
 

@@ -1,7 +1,7 @@
 import { FastColor } from '../src';
 
-// Support CSS rgb() and rgba() syntax with absolute values
-// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/rgb
+// Support CSS hsl() and rgba() syntax with absolute values
+// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/hsl
 describe('css rgb() syntax', () => {
   describe('new space-separated syntax', () => {
     it('parse number (0-255)', () => {
