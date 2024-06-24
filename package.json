@@ -43,7 +43,7 @@
     "@ctrl/tinycolor": "^4.1.0",
     "@rc-component/father-plugin": "^1.0.3",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.14.2",
+    "@types/node": "^20.14.8",
     "@umijs/fabric": "^4.0.1",
     "cross-env": "^7.0.3",
     "dumi": "^2.3.8",
