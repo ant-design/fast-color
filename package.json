@@ -1,6 +1,6 @@
 {
-  "name": "@ant-design/fast-color",
-  "version": "2.2.0",
+  "name": "@guoyunhe/fast-color",
+  "version": "0.0.1",
   "description": "base abstract trigger component for react",
   "engines": {
     "node": ">=8.x"
@@ -33,7 +33,6 @@
     "start": "dumi dev",
     "build": "dumi build",
     "compile": "father build",
-    "prepublishOnly": "npm run compile && np --yolo --no-publish",
     "lint": "eslint src/ docs/examples/ --ext .tsx,.ts,.jsx,.js",
     "test": "rc-test",
     "coverage": "rc-test --coverage",
