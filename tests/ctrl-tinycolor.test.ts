@@ -11,11 +11,22 @@ describe('@ctrl/tinycolor compatibility', () => {
 
   it('should clone', () => {
     const color1 = new FastColor('#66ccff');
-    const color2 = new FastColor('#66ccff').clone();
-    color2.setAlpha(0.5);
-    expect(color2.isValid).toBeTruthy();
-    expect(color2.toString()).toBe('rgba(102,204,255,0.5)');
     expect(color1.toString()).toBe('rgb(102,204,255)');
+    expect(color1.toRgb()).toEqual({
+      a: 1,
+      b: 255,
+      g: 204,
+      r: 102,
+    });
+    const color2 = color1.clone();
+    expect(color2.toRgb()).toEqual({
+      a: 1,
+      b: 255,
+      g: 204,
+      r: 102,
+    });
+    color2.setAlpha(0.5);
+    expect(color2.toString()).toBe('rgba(102,204,255,0.5)');
   });
 
   it('should parse hex', () => {
