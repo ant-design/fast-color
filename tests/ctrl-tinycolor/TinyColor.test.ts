@@ -1,6 +1,6 @@
 // Modified from https://github.com/scttcper/tinycolor/blob/master/test/index.spec.ts
 
-import { FastColor } from '../src';
+import { FastColor } from '../../src';
 
 describe('@ctrl/tinycolor compatibility', () => {
   it('should init', () => {

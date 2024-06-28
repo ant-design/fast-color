@@ -14,4 +14,6 @@ test('rgbToHsv alternative', () => {
     v: 0.12941176470588237,
     a: 1,
   });
+
+  expect(new FastColor('#66ccff').toHsv()).toBe('');
 });
