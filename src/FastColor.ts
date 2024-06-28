@@ -40,15 +40,19 @@ export class FastColor {
       } else if (trimed.startsWith('hsl')) {
         this.fromHslString(trimed);
       }
-    } else if ('l' in input) {
-      this.fromHsl(input);
-    } else if ('v' in input) {
-      this.fromHsv(input);
-    } else {
+    } else if ('r' in input && 'g' in input && 'b' in input) {
       this.r = input.r;
       this.g = input.g;
       this.b = input.b;
       this.a = typeof input.a === 'number' ? input.a : 1;
+    } else if ('l' in input && 'h' in input && 's' in input) {
+      this.fromHsl(input);
+    } else if ('v' in input && 'h' in input && 's' in input) {
+      this.fromHsv(input);
+    } else {
+      throw new Error(
+        '@ant-design/fast-color: unsupported input ' + JSON.stringify(input),
+      );
     }
   }
 
@@ -169,10 +173,10 @@ export class FastColor {
 
   getHue(): number {
     if (typeof this._h === 'undefined') {
-      if (this.max === this.min) {
+      const delta = this.max - this.min;
+      if (delta === 0) {
         this._h = 0;
       } else {
-        const delta = this.max - this.min;
         this._h = Math.round(
           60 *
             (this.r === this.max
@@ -188,12 +192,11 @@ export class FastColor {
 
   getSaturation(): number {
     if (typeof this._s === 'undefined') {
-      if (this.max === this.min) {
+      const delta = this.max - this.min;
+      if (delta === 0) {
         this._s = 0;
       } else {
-        const delta = this.max - this.min;
-        const sum = this.max + this.min;
-        this._s = this.getLightness() > 0.5 ? delta / (510 - sum) : delta / sum;
+        this._s = delta / this.max;
       }
     }
     return this._s;
