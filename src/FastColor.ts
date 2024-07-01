@@ -134,6 +134,41 @@ export class FastColor {
     return new FastColor({ h, s, l, a: this.a });
   }
 
+  /**
+   * Mix the color with pure white, from 0 to 100.
+   * Providing 0 will do nothing, providing 100 will always return white.
+   */
+  tint(amount = 10): FastColor {
+    return this.mix({ r: 255, g: 255, b: 255, a: 1 }, amount);
+  }
+
+  /**
+   * Mix the color with pure black, from 0 to 100.
+   * Providing 0 will do nothing, providing 100 will always return black.
+   */
+  shade(amount = 10): FastColor {
+    return this.mix({ r: 0, g: 0, b: 0, a: 1 }, amount);
+  }
+
+  /**
+   * Mix the current color a given amount with another color, from 0 to 100.
+   * 0 means no mixing (return current color).
+   */
+  mix(color: ColorInput, amount = 50): FastColor {
+    const rgb1 = this.toRgb();
+    const rgb2 = new FastColor(color).toRgb();
+
+    const p = amount / 100;
+    const rgba = {
+      r: (rgb2.r - rgb1.r) * p + rgb1.r,
+      g: (rgb2.g - rgb1.g) * p + rgb1.g,
+      b: (rgb2.b - rgb1.b) * p + rgb1.b,
+      a: (rgb2.a - rgb1.a) * p + rgb1.a,
+    };
+
+    return new FastColor(rgba);
+  }
+
   getAlpha(): number {
     return this.a;
   }
@@ -235,7 +270,8 @@ export class FastColor {
     return this._brightness;
   }
 
-  onBackground(bg: FastColor): FastColor {
+  onBackground(background: ColorInput): FastColor {
+    const bg = new FastColor(background);
     const alpha = this.a + bg.a * (1 - this.a);
 
     return new FastColor({
@@ -246,8 +282,9 @@ export class FastColor {
     });
   }
 
-  setAlpha(alpha: number): void {
+  setAlpha(alpha: number): FastColor {
     this.a = alpha;
+    return this;
   }
 
   toHexString(): string {
