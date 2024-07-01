@@ -40,8 +40,8 @@ importers:
         specifier: ^4.4.4
         version: 4.4.4(@babel/core@7.24.7)(@types/node@20.14.2)(styled-components@6.1.11(react-dom@18.1.0(react@18.1.0))(react@18.1.0))(type-fest@4.20.1)(webpack@5.92.0)
       np:
-        specifier: ^10.0.5
-        version: 10.0.5(typescript@5.4.5)
+        specifier: ^10.0.6
+        version: 10.0.6(typescript@5.4.5)
       rc-test:
         specifier: ^7.0.15
         version: 7.0.15(@babel/core@7.24.7)(@types/node@20.14.2)(react-dom@18.1.0(react@18.1.0))(react@18.1.0)
@@ -6748,8 +6748,8 @@ packages:
     resolution: {integrity: sha512-IO9QvjUMWxPQQhs60oOu10CRkWCiZzSUkzbXGGV9pviYl1fXYcvkzQ5jV9z8Y6un8ARoVRl4EtC6v6jNqbaJ/w==}
     engines: {node: '>=14.16'}
 
-  np@10.0.5:
-    resolution: {integrity: sha512-Tu270vVvsh92uh6XDXrGS6D94PhzxQYqM8uUxftYVp0B8qXl78dJRYwQ9wfYMOBB9ynlF79eWlUtPUxPzKGddQ==}
+  np@10.0.6:
+    resolution: {integrity: sha512-173uUvFDmHtme1ra3JDMjYzqa94XHJAHoNae6lCA4mJWMIz073x9FE2O8SHMMjKXlHetRdOXufLUjdimRxXR3A==}
     engines: {git: '>=2.11.0', node: '>=18', npm: '>=9', pnpm: '>=8', yarn: '>=1.7.0'}
     hasBin: true
 
@@ -18623,7 +18623,7 @@ snapshots:
 
   normalize-url@8.0.1: {}
 
-  np@10.0.5(typescript@5.4.5):
+  np@10.0.6(typescript@5.4.5):
     dependencies:
       chalk: 5.3.0
       chalk-template: 1.1.0
