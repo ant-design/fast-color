@@ -7,6 +7,14 @@ describe('hsv', () => {
     );
   });
 
+  it('hsv string to hex', () => {
+    expect(new FastColor('hsv(270, 60%, 40%)').toHexString()).toBe('#472966');
+  });
+
+  it('hsb string to hex', () => {
+    expect(new FastColor('hsb(270 60 40)').toHexString()).toBe('#472966');
+  });
+
   it('hex to hsv object', () => {
     expect(new FastColor('#472966').toHsv()).toEqual({
       h: 270,

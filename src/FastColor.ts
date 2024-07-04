@@ -1,5 +1,39 @@
 import type { ColorInput, HSL, HSV, RGB } from './types';
 
+type ParseNumber = (num: number, txt: string, index: number) => number;
+
+/**
+ * Support format, alpha unit will check the % mark:
+ * - rgba(102, 204, 255, .5)      -> [102, 204, 255, 0.5]
+ * - rgb(102 204 255 / .5)        -> [102, 204, 255, 0.5]
+ * - rgb(100%, 50%, 0% / 50%)     -> [255, 128, 0, 0.5]
+ * - hsl(270, 60, 40, .5)         -> [270, 60, 40, 0.5]
+ * - hsl(270deg 60% 40% / 50%)   -> [270, 60, 40, 0.5]
+ *
+ * When `base` is provided, the percentage value will be divided by `base`.
+ */
+function splitColorStr(str: string, parseNum: ParseNumber): number[] {
+  const match = str.match(/\d*\.?\d+%?/g);
+  const numList = match ? match.map((item) => parseFloat(item)) : [];
+
+  for (let i = 0; i < 3; i += 1) {
+    numList[i] = parseNum(numList[i], match[i], i);
+  }
+
+  // For alpha. 50% should be 0.5
+  if (match[3]) {
+    numList[3] = match[3].includes('%') ? numList[3] / 100 : numList[3];
+  } else {
+    // By default, alpha is 1
+    numList[3] = 1;
+  }
+
+  return numList;
+}
+
+const parseHSVorHSL: ParseNumber = (num, _, index) =>
+  index === 0 ? num : num / 100;
+
 export class FastColor {
   /**
    * Red, R in RGB
@@ -39,6 +73,8 @@ export class FastColor {
         this.fromRgbString(trimed);
       } else if (trimed.startsWith('hsl')) {
         this.fromHslString(trimed);
+      } else if (trimed.startsWith('hsv') || trimed.startsWith('hsb')) {
+        this.fromHsvString(trimed);
       }
     } else if ('r' in input && 'g' in input && 'b' in input) {
       this.r = input.r;
@@ -476,46 +512,37 @@ export class FastColor {
     }
   }
 
+  private fromHsvString(trimed: string) {
+    const cells = splitColorStr(trimed, parseHSVorHSL);
+
+    this.fromHsv({
+      h: cells[0],
+      s: cells[1],
+      v: cells[2],
+      a: cells[3],
+    });
+  }
+
   private fromHslString(trimed: string) {
-    const str = trimed.substring(trimed.indexOf('(') + 1, trimed.indexOf(')'));
-    const arr = str.includes(',')
-      ? str.split(',')
-      : str
-          .replace('/', ' ')
-          .split(' ')
-          .filter((item) => item.length > 0);
-    const h = parseInt(arr[0]);
-    const s = parseFloat(arr[1]) / 100;
-    const l = parseFloat(arr[2]) / 100;
-    const a = arr[3]
-      ? arr[3].includes('%')
-        ? parseFloat(arr[3]) / 100
-        : parseFloat(arr[3])
-      : 1;
-    this.fromHsl({ h, s, l, a });
+    const cells = splitColorStr(trimed, parseHSVorHSL);
+
+    this.fromHsl({
+      h: cells[0],
+      s: cells[1],
+      l: cells[2],
+      a: cells[3],
+    });
   }
 
   private fromRgbString(trimed: string) {
-    const str = trimed.substring(trimed.indexOf('(') + 1, trimed.indexOf(')'));
-    const arr = str.includes(',')
-      ? str.split(',')
-      : str
-          .replace('/', ' ')
-          .split(' ')
-          .filter((item) => item.length > 0);
-    this.r = arr[0].includes('%')
-      ? Math.round((parseFloat(arr[0]) / 100) * 255)
-      : parseInt(arr[0]);
-    this.g = arr[1].includes('%')
-      ? Math.round((parseFloat(arr[1]) / 100) * 255)
-      : parseInt(arr[1]);
-    this.b = arr[2].includes('%')
-      ? Math.round((parseFloat(arr[2]) / 100) * 255)
-      : parseInt(arr[2]);
-    this.a = arr[3]
-      ? arr[3].includes('%')
-        ? parseFloat(arr[3]) / 100
-        : parseFloat(arr[3])
-      : 1;
+    const cells = splitColorStr(trimed, (num, txt) =>
+      // Convert percentage to number. e.g. 50% -> 128
+      txt.includes('%') ? Math.round((num / 100) * 255) : num,
+    );
+
+    this.r = cells[0];
+    this.g = cells[1];
+    this.b = cells[2];
+    this.a = cells[3];
   }
 }

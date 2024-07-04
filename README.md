@@ -44,8 +44,8 @@ new FastColor('rgb(102 204 255 / .5)'); // new css rgb syntax
 new FastColor('hsl(270, 60, 40, .5)'); // old css hsl syntax, with or without unit
 new FastColor('hsl(270deg 60% 40% / 50%)'); // new css hsl syntax, with or without unit
 new FastColor({ r: 102, g: 204, b: 255, a: 0.5 }); // rgb object
-new FastColor({ h: 270, s: 60, l: 40, a: 0.5 }); // hsl object
-new FastColor({ h: 270, s: 60, v: 40, a: 0.5 }); // hsv object
+new FastColor({ h: 270, s: 0.6, l: 0.4, a: 0.5 }); // hsl object
+new FastColor({ h: 270, s: 0.6, v: 0.4, a: 0.5 }); // hsv object
 
 // clone
 const color = new FastColor('#66ccff');

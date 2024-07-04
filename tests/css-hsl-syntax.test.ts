@@ -131,6 +131,14 @@ describe('css hsl() syntax', () => {
         b: 163,
         a: 0.233,
       });
+
+      // String back
+      expect(new FastColor('hsla(270, 60, 40, 0.2)').toHslString()).toEqual(
+        'hsla(270,60%,40%,0.2)',
+      );
+      expect(
+        new FastColor('hsla(270deg, 60%, 40%, 23.3%)').toHslString(),
+      ).toEqual('hsla(270,60%,40%,0.233)');
     });
   });
 });
