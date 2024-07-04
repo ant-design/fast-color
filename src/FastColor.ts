@@ -12,14 +12,12 @@ type ParseNumber = (num: number, txt: string, index: number) => number;
  *
  * When `base` is provided, the percentage value will be divided by `base`.
  */
-function splitColorStr(str: string, parseNum?: ParseNumber): number[] {
+function splitColorStr(str: string, parseNum: ParseNumber): number[] {
   const match = str.match(/\d*\.?\d+%?/g);
   const numList = match ? match.map((item) => parseFloat(item)) : [];
 
-  if (parseNum) {
-    for (let i = 0; i < 3; i += 1) {
-      numList[i] = parseNum(numList[i], match[i], i);
-    }
+  for (let i = 0; i < 3; i += 1) {
+    numList[i] = parseNum(numList[i], match[i], i);
   }
 
   // For alpha. 50% should be 0.5
