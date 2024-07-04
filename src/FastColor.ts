@@ -1,5 +1,23 @@
 import type { ColorInput, HSL, HSV, RGB } from './types';
 
+/**
+ * Support format:
+ * - rgba(102, 204, 255, .5)
+ * - rgb(102 204 255 / .5)
+ * - hsl(270, 60, 40, .5)
+ * - hsl(270deg 60% 40% / 50%)
+ */
+function splitColorStr(str: string): number[] {
+  const match = str.match(/\d*\.?\d+%?/g);
+  const numList = match ? match.map((item) => parseFloat(item)) : [];
+
+  // For alpha. 50% should be 0.5
+  if (match[3]) {
+    numList[3] = match[3].includes('%') ? numList[3] / 100 : numList[3];
+  }
+  return numList;
+}
+
 export class FastColor {
   /**
    * Red, R in RGB
@@ -39,6 +57,8 @@ export class FastColor {
         this.fromRgbString(trimed);
       } else if (trimed.startsWith('hsl')) {
         this.fromHslString(trimed);
+      } else if (trimed.startsWith('hsv') || trimed.startsWith('hsb')) {
+        this.fromHsvString(trimed);
       }
     } else if ('r' in input && 'g' in input && 'b' in input) {
       this.r = input.r;
@@ -474,6 +494,16 @@ export class FastColor {
         this.b = q;
         break;
     }
+  }
+
+  private fromHsvString(trimed: string) {
+    const cells = splitColorStr(trimed);
+    this.fromHsv({
+      h: cells[0],
+      s: cells[1],
+      v: cells[2],
+      a: cells[3],
+    });
   }
 
   private fromHslString(trimed: string) {
