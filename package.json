@@ -33,6 +33,7 @@
   "module": "./es/index",
   "scripts": {
     "start": "dumi dev",
+    "bench": "vitest bench",
     "build": "dumi build",
     "compile": "father build",
     "prepublishOnly": "npm run compile && np --yolo --no-publish",
@@ -47,6 +48,7 @@
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.2",
     "@umijs/fabric": "^4.0.1",
+    "color2k": "^2.0.3",
     "cross-env": "^7.0.3",
     "dumi": "^2.3.8",
     "eslint": "^8.57.0",
