@@ -27,6 +27,9 @@ importers:
       '@umijs/fabric':
         specifier: ^4.0.1
         version: 4.0.1(jest@29.7.0(@types/node@20.14.2))(postcss@7.0.39)
+      color2k:
+        specifier: ^2.0.3
+        version: 2.0.3
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -3486,6 +3489,9 @@ packages:
 
   color-string@1.9.1:
     resolution: {integrity: sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg==}
+
+  color2k@2.0.3:
+    resolution: {integrity: sha512-zW190nQTIoXcGCaU08DvVNFTmQhUpnJfVuAKfWqUQkflXKpaDdpaYoM0iluLS9lgJNHyBF58KKA2FBEwkD7wog==}
 
   color@3.2.1:
     resolution: {integrity: sha512-aBl7dZI9ENN6fUGC7mWpMTPNHmWUSNan9tuWN6ahh5ZLNk9baLJOnSMlrQkHcrfFgz2/RigjUVAjdx36VcemKA==}
@@ -14200,6 +14206,8 @@ snapshots:
     dependencies:
       color-name: 1.1.4
       simple-swizzle: 0.2.2
+
+  color2k@2.0.3: {}
 
   color@3.2.1:
     dependencies:
