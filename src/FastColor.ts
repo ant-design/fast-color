@@ -343,6 +343,7 @@ export class FastColor {
       h: this.h,
       s: this.s,
       l: this.l,
+      a: this.a,
     };
   }
 
