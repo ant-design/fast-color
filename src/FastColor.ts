@@ -1,4 +1,4 @@
-import type { ColorInput, HSL, HSV, RGB } from './types';
+import type { ColorInput, HSL, HSV, OptionalA, RGB } from './types';
 
 type ParseNumber = (num: number, txt: string, index: number) => number;
 
@@ -76,15 +76,20 @@ export class FastColor {
 
   constructor(input: ColorInput) {
     if (typeof input === 'string') {
-      const trimed = input.trim();
-      if (trimed[0] === '#') {
-        this.fromHexString(trimed);
-      } else if (trimed.startsWith('rgb')) {
-        this.fromRgbString(trimed);
-      } else if (trimed.startsWith('hsl')) {
-        this.fromHslString(trimed);
-      } else if (trimed.startsWith('hsv') || trimed.startsWith('hsb')) {
-        this.fromHsvString(trimed);
+      const trimStr = input.trim();
+
+      function matchPrefix(prefix: string) {
+        return trimStr.startsWith(prefix);
+      }
+
+      if (/^#?[A-F\d]{3,8}$/i.test(trimStr)) {
+        this.fromHexString(trimStr);
+      } else if (matchPrefix('rgb')) {
+        this.fromRgbString(trimStr);
+      } else if (matchPrefix('hsl')) {
+        this.fromHslString(trimStr);
+      } else if (matchPrefix('hsv') || matchPrefix('hsb')) {
+        this.fromHsvString(trimStr);
       }
     } else if ('r' in input && 'g' in input && 'b' in input) {
       this.r = input.r;
@@ -401,23 +406,32 @@ export class FastColor {
     return this._min;
   }
 
-  private fromHexString(trimed: string) {
-    if (trimed.length < 6) {
+  private fromHexString(trimStr: string) {
+    const withoutPrefix = trimStr.replace('#', '');
+
+    function connectNum(index1: number, index2?: number) {
+      return parseInt(
+        withoutPrefix[index1] + withoutPrefix[index2 || index1],
+        16,
+      );
+    }
+
+    if (withoutPrefix.length < 6) {
       // #rgb or #rgba
-      this.r = parseInt(trimed[1] + trimed[1], 16);
-      this.g = parseInt(trimed[2] + trimed[2], 16);
-      this.b = parseInt(trimed[3] + trimed[3], 16);
-      this.a = trimed[4] ? parseInt(trimed[4] + trimed[4], 16) / 255 : 1;
+      this.r = connectNum(0);
+      this.g = connectNum(1);
+      this.b = connectNum(2);
+      this.a = withoutPrefix[3] ? connectNum(3) / 255 : 1;
     } else {
       // #rrggbb or #rrggbbaa
-      this.r = parseInt(trimed[1] + trimed[2], 16);
-      this.g = parseInt(trimed[3] + trimed[4], 16);
-      this.b = parseInt(trimed[5] + trimed[6], 16);
-      this.a = trimed[8] ? parseInt(trimed[7] + trimed[8], 16) / 255 : 1;
+      this.r = connectNum(0, 1);
+      this.g = connectNum(2, 3);
+      this.b = connectNum(4, 5);
+      this.a = withoutPrefix[6] ? connectNum(6, 7) / 255 : 1;
     }
   }
 
-  private fromHsl({ h, s, l, a }: HSL): void {
+  private fromHsl({ h, s, l, a }: OptionalA<HSL>): void {
     this._h = h % 360;
     this._s = s;
     this._l = l;
@@ -464,7 +478,7 @@ export class FastColor {
     this.b = Math.round((this.b + lightnessModification) * 255);
   }
 
-  private fromHsv({ h, s, v, a }: HSV): void {
+  private fromHsv({ h, s, v, a }: OptionalA<HSV>): void {
     this._h = h % 360;
     this._s = s;
     this._v = v;

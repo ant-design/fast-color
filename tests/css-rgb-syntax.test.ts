@@ -159,4 +159,13 @@ describe('css rgb() syntax', () => {
       a: 1,
     });
   });
+
+  it('pure rbg', () => {
+    expect(new FastColor('FF00FF').toRgb()).toEqual({
+      r: 255,
+      g: 0,
+      b: 255,
+      a: 1,
+    });
+  });
 });
