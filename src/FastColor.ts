@@ -1,4 +1,4 @@
-import type { ColorInput, HSL, HSV, RGB } from './types';
+import type { ColorInput, HSL, HSV, OptionalA, RGB } from './types';
 
 type ParseNumber = (num: number, txt: string, index: number) => number;
 
@@ -88,7 +88,7 @@ export class FastColor {
         this.fromHslString(trimStr);
       } else if (matchPrefix('hsv') || matchPrefix('hsb')) {
         this.fromHsvString(trimStr);
-      } else if (/^#?[A-F\d]{3}([A-F\d]{3}([A-F\d]{2})?)?$/i.test(trimStr)) {
+      } else if (/^#?[A-F\d]{3,8}$/i.test(trimStr)) {
         this.fromHexString(trimStr);
       }
     } else if ('r' in input && 'g' in input && 'b' in input) {
@@ -427,11 +427,11 @@ export class FastColor {
       this.r = connectNum(0, 1);
       this.g = connectNum(2, 3);
       this.b = connectNum(4, 5);
-      this.a = withoutPrefix[7] ? connectNum(6, 7) / 255 : 1;
+      this.a = withoutPrefix[6] ? connectNum(6, 7) / 255 : 1;
     }
   }
 
-  private fromHsl({ h, s, l, a }: HSL): void {
+  private fromHsl({ h, s, l, a }: OptionalA<HSL>): void {
     this._h = h % 360;
     this._s = s;
     this._l = l;
@@ -478,7 +478,7 @@ export class FastColor {
     this.b = Math.round((this.b + lightnessModification) * 255);
   }
 
-  private fromHsv({ h, s, v, a }: HSV): void {
+  private fromHsv({ h, s, v, a }: OptionalA<HSV>): void {
     this._h = h % 360;
     this._s = s;
     this._v = v;
