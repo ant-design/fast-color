@@ -1,6 +1,6 @@
 {
   "name": "@ant-design/fast-color",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "fast and small color class",
   "engines": {
     "node": ">=8.x"
