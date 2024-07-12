@@ -82,14 +82,14 @@ export class FastColor {
         return trimStr.startsWith(prefix);
       }
 
-      if (matchPrefix('rgb')) {
+      if (/^#?[A-F\d]{3,8}$/i.test(trimStr)) {
+        this.fromHexString(trimStr);
+      } else if (matchPrefix('rgb')) {
         this.fromRgbString(trimStr);
       } else if (matchPrefix('hsl')) {
         this.fromHslString(trimStr);
       } else if (matchPrefix('hsv') || matchPrefix('hsb')) {
         this.fromHsvString(trimStr);
-      } else if (/^#?[A-F\d]{3,8}$/i.test(trimStr)) {
-        this.fromHexString(trimStr);
       }
     } else if ('r' in input && 'g' in input && 'b' in input) {
       this.r = input.r;
