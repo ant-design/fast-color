@@ -75,7 +75,12 @@ export class FastColor {
   private _brightness?: number;
 
   constructor(input: ColorInput) {
-    if (typeof input === 'string') {
+    if (!input) {
+      this.r = 0;
+      this.g = 0;
+      this.b = 0;
+      this.a = 1;
+    } else if (typeof input === 'string') {
       const trimStr = input.trim();
 
       function matchPrefix(prefix: string) {
