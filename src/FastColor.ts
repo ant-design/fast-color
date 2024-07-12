@@ -13,7 +13,13 @@ type ParseNumber = (num: number, txt: string, index: number) => number;
  * When `base` is provided, the percentage value will be divided by `base`.
  */
 function splitColorStr(str: string, parseNum: ParseNumber): number[] {
-  const match: string[] = str.match(/\d*\.?\d+%?/g) || [];
+  const match: string[] =
+    str
+      // Remove str before `(`
+      .replace(/^[^(]*\((.*)/, '$1')
+      // Remove str after `)`
+      .replace(/\).*/, '')
+      .match(/\d*\.?\d+%?/g) || [];
   const numList = match.map((item) => parseFloat(item));
 
   for (let i = 0; i < 3; i += 1) {
@@ -29,6 +35,10 @@ function splitColorStr(str: string, parseNum: ParseNumber): number[] {
   }
 
   return numList;
+}
+
+function inRange(val: number, max = 255, min = 0) {
+  return typeof val === 'number' && val >= min && val <= max;
 }
 
 const parseHSVorHSL: ParseNumber = (num, _, index) =>
@@ -122,18 +132,10 @@ export class FastColor {
 
   get isValid() {
     return (
-      typeof this.r === 'number' &&
-      this.r >= 0 &&
-      this.r <= 255 &&
-      typeof this.g === 'number' &&
-      this.g >= 0 &&
-      this.g <= 255 &&
-      typeof this.b === 'number' &&
-      this.b >= 0 &&
-      this.b <= 255 &&
-      typeof this.a === 'number' &&
-      this.a >= 0 &&
-      this.a <= 1
+      inRange(this.r) &&
+      inRange(this.g) &&
+      inRange(this.b) &&
+      inRange(this.a, 1)
     );
   }
 
