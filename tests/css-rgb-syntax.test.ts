@@ -152,10 +152,10 @@ describe('css rgb() syntax', () => {
   });
 
   it('rgb with extra stop', () => {
-    expect(new FastColor('rgb(255, 0, 0) 0%').toRgb()).toEqual({
+    expect(new FastColor('rgb(255, 90, 30) 0%').toRgb()).toEqual({
       r: 255,
-      g: 0,
-      b: 0,
+      g: 90,
+      b: 30,
       a: 1,
     });
   });
