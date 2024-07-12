@@ -19,4 +19,10 @@ export interface HSV {
   a: number;
 }
 
-export type ColorInput = string | RGB | HSL | HSV;
+export type OptionalA<T extends { a: number }> = Omit<T, 'a'> & { a?: number };
+
+export type ColorInput =
+  | string
+  | OptionalA<RGB>
+  | OptionalA<HSL>
+  | OptionalA<HSV>;
