@@ -263,4 +263,13 @@ describe('@ctrl/tinycolor compatibility', () => {
         .toRgbString(),
     ).toBe('rgb(0,0,255)');
   });
+
+  it('default of empty', () => {
+    expect(new FastColor('').toRgb()).toEqual({
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 1,
+    });
+  });
 });
