@@ -150,4 +150,13 @@ describe('css rgb() syntax', () => {
       a: 1,
     });
   });
+
+  it('rgb with extra stop', () => {
+    expect(new FastColor('rgb(255, 0, 0) 0%').toRgb()).toEqual({
+      r: 255,
+      g: 0,
+      b: 0,
+      a: 1,
+    });
+  });
 });
