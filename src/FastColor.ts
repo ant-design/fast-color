@@ -85,7 +85,7 @@ export class FastColor {
   private _l?: number;
   private _v?: number;
 
-  // intermedia variables to calculate HSL/HSV
+  // intermediate variables to calculate HSL/HSV
   private _max?: number;
   private _min?: number;
 
@@ -107,6 +107,15 @@ export class FastColor {
 
     if (!input) {
       // Do nothing since already initialized
+    } else if (input instanceof FastColor) {
+      this.r = input.r;
+      this.g = input.g;
+      this.b = input.b;
+      this.a = input.a;
+      this._h = input._h;
+      this._s = input._s;
+      this._l = input._l;
+      this._v = input._v;
     } else if (typeof input === 'string') {
       const trimStr = input.trim();
 
@@ -124,10 +133,11 @@ export class FastColor {
         this.fromHsvString(trimStr);
       }
     } else if (matchFormat('rgb')) {
-      this.setR((input as RGB).r);
-      this.setG((input as RGB).g);
-      this.setB((input as RGB).b);
-      this.setAlpha(typeof input.a === 'number' ? input.a : 1);
+      this.r = limitRange((input as RGB).r);
+      this.g = limitRange((input as RGB).g);
+      this.b = limitRange((input as RGB).b);
+      this.a =
+        typeof input.a === 'number' ? limitRange((input as RGB).a, 1) : 1;
     } else if (matchFormat('hsl')) {
       this.fromHsl(input as HSL);
     } else if (matchFormat('hsv')) {
@@ -139,97 +149,31 @@ export class FastColor {
     }
   }
 
+  // ======================= Setter =======================
+
   setR(value: number) {
-    this.r = limitRange(value);
-    return this;
+    return this._sc('r', value);
   }
 
   setG(value: number) {
-    this.g = limitRange(value);
-    return this;
+    return this._sc('g', value);
   }
 
   setB(value: number) {
-    this.b = limitRange(value);
-    return this;
+    return this._sc('b', value);
   }
 
-  getAlpha(): number {
-    return this.a;
+  setA(value: number) {
+    return this._sc('a', value, 1);
   }
 
-  setAlpha(value: number) {
-    this.a = limitRange(value, 1);
-    return this;
+  setHue(value: number) {
+    const hsl = this.toHsl();
+    hsl.h = value;
+    return new FastColor(hsl);
   }
 
-  clone(): FastColor {
-    return new FastColor(this);
-  }
-
-  equals(other: FastColor): boolean {
-    return (
-      this.r === other.r &&
-      this.g === other.g &&
-      this.b === other.b &&
-      this.a === other.a
-    );
-  }
-
-  darken(amount = 10): FastColor {
-    const h = this.getHue();
-    const s = this.getSaturation();
-    let l = this.getLightness() - amount / 100;
-    if (l < 0) {
-      l = 0;
-    }
-    return new FastColor({ h, s, l, a: this.a });
-  }
-
-  lighten(amount = 10): FastColor {
-    const h = this.getHue();
-    const s = this.getSaturation();
-    let l = this.getLightness() + amount / 100;
-    if (l > 1) {
-      l = 1;
-    }
-    return new FastColor({ h, s, l, a: this.a });
-  }
-
-  /**
-   * Mix the color with pure white, from 0 to 100.
-   * Providing 0 will do nothing, providing 100 will always return white.
-   */
-  tint(amount = 10): FastColor {
-    return this.mix({ r: 255, g: 255, b: 255, a: 1 }, amount);
-  }
-
-  /**
-   * Mix the color with pure black, from 0 to 100.
-   * Providing 0 will do nothing, providing 100 will always return black.
-   */
-  shade(amount = 10): FastColor {
-    return this.mix({ r: 0, g: 0, b: 0, a: 1 }, amount);
-  }
-
-  /**
-   * Mix the current color a given amount with another color, from 0 to 100.
-   * 0 means no mixing (return current color).
-   */
-  mix(input: ColorInput, amount = 50): FastColor {
-    const color = new FastColor(input);
-
-    const p = amount / 100;
-    const rgba = {
-      r: (color.r - this.r) * p + this.r,
-      g: (color.g - this.g) * p + this.g,
-      b: (color.b - this.b) * p + this.b,
-      a: (color.a - this.a) * p + this.a,
-    };
-
-    return new FastColor(rgba);
-  }
-
+  // ======================= Getter =======================
   /**
    * Returns the perceived luminance of a color, from 0-1.
    * @see http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
@@ -295,14 +239,6 @@ export class FastColor {
     return this._v;
   }
 
-  isDark(): boolean {
-    return this.getBrightness() < 128;
-  }
-
-  isLight(): boolean {
-    return this.getBrightness() >= 128;
-  }
-
   /**
    * Returns the perceived brightness of the color, from 0-255.
    * @see http://www.w3.org/TR/AERT#color-contrast
@@ -312,6 +248,62 @@ export class FastColor {
       this._brightness = (this.r * 299 + this.g * 587 + this.b * 114) / 1000;
     }
     return this._brightness;
+  }
+
+  // ======================== Func ========================
+
+  darken(amount = 10): FastColor {
+    const h = this.getHue();
+    const s = this.getSaturation();
+    let l = this.getLightness() - amount / 100;
+    if (l < 0) {
+      l = 0;
+    }
+    return new FastColor({ h, s, l, a: this.a });
+  }
+
+  lighten(amount = 10): FastColor {
+    const h = this.getHue();
+    const s = this.getSaturation();
+    let l = this.getLightness() + amount / 100;
+    if (l > 1) {
+      l = 1;
+    }
+    return new FastColor({ h, s, l, a: this.a });
+  }
+
+  /**
+   * Mix the current color a given amount with another color, from 0 to 100.
+   * 0 means no mixing (return current color).
+   */
+  mix(input: ColorInput, amount = 50): FastColor {
+    const color = new FastColor(input);
+
+    const p = amount / 100;
+    const rgba = {
+      r: (color.r - this.r) * p + this.r,
+      g: (color.g - this.g) * p + this.g,
+      b: (color.b - this.b) * p + this.b,
+      a: (color.a - this.a) * p + this.a,
+    };
+
+    return new FastColor(rgba);
+  }
+
+  /**
+   * Mix the color with pure white, from 0 to 100.
+   * Providing 0 will do nothing, providing 100 will always return white.
+   */
+  tint(amount = 10): FastColor {
+    return this.mix({ r: 255, g: 255, b: 255, a: 1 }, amount);
+  }
+
+  /**
+   * Mix the color with pure black, from 0 to 100.
+   * Providing 0 will do nothing, providing 100 will always return black.
+   */
+  shade(amount = 10): FastColor {
+    return this.mix({ r: 0, g: 0, b: 0, a: 1 }, amount);
   }
 
   onBackground(background: ColorInput): FastColor {
@@ -326,6 +318,30 @@ export class FastColor {
     });
   }
 
+  // ======================= Status =======================
+  isDark(): boolean {
+    return this.getBrightness() < 128;
+  }
+
+  isLight(): boolean {
+    return this.getBrightness() >= 128;
+  }
+
+  // ======================== MISC ========================
+  equals(other: FastColor): boolean {
+    return (
+      this.r === other.r &&
+      this.g === other.g &&
+      this.b === other.b &&
+      this.a === other.a
+    );
+  }
+
+  clone(): FastColor {
+    return new FastColor(this);
+  }
+
+  // ======================= Format =======================
   toHexString(): string {
     let hex = '#';
     const rHex = (this.r || 0).toString(16);
@@ -341,15 +357,17 @@ export class FastColor {
     return hex;
   }
 
+  /** CSS support color pattern */
   toHsl(): HSL {
     return {
       h: this.getHue(),
       s: this.getSaturation(),
       l: this.getLightness(),
-      a: this.getAlpha(),
+      a: this.a,
     };
   }
 
+  /** CSS support color pattern */
   toHslString(): string {
     const h = this.getHue();
     const s = Math.round(this.getSaturation() * 100);
@@ -360,12 +378,13 @@ export class FastColor {
       : `hsl(${h},${s}%,${l}%)`;
   }
 
+  /** Same as toHsb */
   toHsv(): HSV {
     return {
       h: this.getHue(),
       s: this.getSaturation(),
       v: this.getValue(),
-      a: this.getAlpha(),
+      a: this.a,
     };
   }
 
@@ -386,6 +405,14 @@ export class FastColor {
 
   toString(): string {
     return this.toRgbString();
+  }
+
+  // ====================== Privates ======================
+  /** Return a new FastColor object with one channel changed */
+  _sc(rgb: string, value: number, max?: number): FastColor {
+    const clone = this.clone();
+    clone[rgb] = limitRange(value, max);
+    return clone;
   }
 
   private getMax() {
@@ -525,8 +552,8 @@ export class FastColor {
     }
   }
 
-  private fromHsvString(trimed: string) {
-    const cells = splitColorStr(trimed, parseHSVorHSL);
+  private fromHsvString(trimStr: string) {
+    const cells = splitColorStr(trimStr, parseHSVorHSL);
 
     this.fromHsv({
       h: cells[0],
@@ -536,8 +563,8 @@ export class FastColor {
     });
   }
 
-  private fromHslString(trimed: string) {
-    const cells = splitColorStr(trimed, parseHSVorHSL);
+  private fromHslString(trimStr: string) {
+    const cells = splitColorStr(trimStr, parseHSVorHSL);
 
     this.fromHsl({
       h: cells[0],
@@ -547,8 +574,8 @@ export class FastColor {
     });
   }
 
-  private fromRgbString(trimed: string) {
-    const cells = splitColorStr(trimed, (num, txt) =>
+  private fromRgbString(trimStr: string) {
+    const cells = splitColorStr(trimStr, (num, txt) =>
       // Convert percentage to number. e.g. 50% -> 128
       txt.includes('%') ? Math.round((num / 100) * 255) : num,
     );
