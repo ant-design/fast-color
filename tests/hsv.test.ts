@@ -31,8 +31,20 @@ describe('hsv', () => {
       v: 0,
     });
 
-    const turn = base.setH(0);
+    const turn = base.setHue(0);
 
     expect(base.toHexString()).toEqual(turn.toHexString());
+  });
+
+  it('clone should be same hsv', () => {
+    const base = new FastColor({
+      h: 180,
+      s: 0,
+      v: 0,
+    });
+
+    const turn = base.clone();
+
+    expect(base.toHsv()).toEqual(turn.toHsv());
   });
 });

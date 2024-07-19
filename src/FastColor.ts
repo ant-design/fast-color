@@ -85,7 +85,7 @@ export class FastColor {
   private _l?: number;
   private _v?: number;
 
-  // intermedia variables to calculate HSL/HSV
+  // intermediate variables to calculate HSL/HSV
   private _max?: number;
   private _min?: number;
 
@@ -107,6 +107,15 @@ export class FastColor {
 
     if (!input) {
       // Do nothing since already initialized
+    } else if (input instanceof FastColor) {
+      this.r = input.r;
+      this.g = input.g;
+      this.b = input.b;
+      this.a = input.a;
+      this._h = input._h;
+      this._s = input._s;
+      this._l = input._l;
+      this._v = input._v;
     } else if (typeof input === 'string') {
       const trimStr = input.trim();
 
@@ -140,11 +149,7 @@ export class FastColor {
     }
   }
 
-  _sc(rgb: string, value: number, max?: number): FastColor {
-    const clone = this.clone();
-    clone[rgb] = limitRange(value, max);
-    return clone;
-  }
+  // ======================= Setter =======================
 
   setR(value: number) {
     return this._sc('r', value);
@@ -162,79 +167,13 @@ export class FastColor {
     return this._sc('a', value, 1);
   }
 
-  setH(value: number) {
+  setHue(value: number) {
     const hsl = this.toHsl();
     hsl.h = value;
     return new FastColor(hsl);
   }
 
-  clone(): FastColor {
-    return new FastColor(this);
-  }
-
-  equals(other: FastColor): boolean {
-    return (
-      this.r === other.r &&
-      this.g === other.g &&
-      this.b === other.b &&
-      this.a === other.a
-    );
-  }
-
-  darken(amount = 10): FastColor {
-    const h = this.getHue();
-    const s = this.getSaturation();
-    let l = this.getLightness() - amount / 100;
-    if (l < 0) {
-      l = 0;
-    }
-    return new FastColor({ h, s, l, a: this.a });
-  }
-
-  lighten(amount = 10): FastColor {
-    const h = this.getHue();
-    const s = this.getSaturation();
-    let l = this.getLightness() + amount / 100;
-    if (l > 1) {
-      l = 1;
-    }
-    return new FastColor({ h, s, l, a: this.a });
-  }
-
-  /**
-   * Mix the color with pure white, from 0 to 100.
-   * Providing 0 will do nothing, providing 100 will always return white.
-   */
-  tint(amount = 10): FastColor {
-    return this.mix({ r: 255, g: 255, b: 255, a: 1 }, amount);
-  }
-
-  /**
-   * Mix the color with pure black, from 0 to 100.
-   * Providing 0 will do nothing, providing 100 will always return black.
-   */
-  shade(amount = 10): FastColor {
-    return this.mix({ r: 0, g: 0, b: 0, a: 1 }, amount);
-  }
-
-  /**
-   * Mix the current color a given amount with another color, from 0 to 100.
-   * 0 means no mixing (return current color).
-   */
-  mix(input: ColorInput, amount = 50): FastColor {
-    const color = new FastColor(input);
-
-    const p = amount / 100;
-    const rgba = {
-      r: (color.r - this.r) * p + this.r,
-      g: (color.g - this.g) * p + this.g,
-      b: (color.b - this.b) * p + this.b,
-      a: (color.a - this.a) * p + this.a,
-    };
-
-    return new FastColor(rgba);
-  }
-
+  // ======================= Getter =======================
   /**
    * Returns the perceived luminance of a color, from 0-1.
    * @see http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
@@ -300,14 +239,6 @@ export class FastColor {
     return this._v;
   }
 
-  isDark(): boolean {
-    return this.getBrightness() < 128;
-  }
-
-  isLight(): boolean {
-    return this.getBrightness() >= 128;
-  }
-
   /**
    * Returns the perceived brightness of the color, from 0-255.
    * @see http://www.w3.org/TR/AERT#color-contrast
@@ -317,6 +248,62 @@ export class FastColor {
       this._brightness = (this.r * 299 + this.g * 587 + this.b * 114) / 1000;
     }
     return this._brightness;
+  }
+
+  // ======================== Func ========================
+
+  darken(amount = 10): FastColor {
+    const h = this.getHue();
+    const s = this.getSaturation();
+    let l = this.getLightness() - amount / 100;
+    if (l < 0) {
+      l = 0;
+    }
+    return new FastColor({ h, s, l, a: this.a });
+  }
+
+  lighten(amount = 10): FastColor {
+    const h = this.getHue();
+    const s = this.getSaturation();
+    let l = this.getLightness() + amount / 100;
+    if (l > 1) {
+      l = 1;
+    }
+    return new FastColor({ h, s, l, a: this.a });
+  }
+
+  /**
+   * Mix the current color a given amount with another color, from 0 to 100.
+   * 0 means no mixing (return current color).
+   */
+  mix(input: ColorInput, amount = 50): FastColor {
+    const color = new FastColor(input);
+
+    const p = amount / 100;
+    const rgba = {
+      r: (color.r - this.r) * p + this.r,
+      g: (color.g - this.g) * p + this.g,
+      b: (color.b - this.b) * p + this.b,
+      a: (color.a - this.a) * p + this.a,
+    };
+
+    return new FastColor(rgba);
+  }
+
+  /**
+   * Mix the color with pure white, from 0 to 100.
+   * Providing 0 will do nothing, providing 100 will always return white.
+   */
+  tint(amount = 10): FastColor {
+    return this.mix({ r: 255, g: 255, b: 255, a: 1 }, amount);
+  }
+
+  /**
+   * Mix the color with pure black, from 0 to 100.
+   * Providing 0 will do nothing, providing 100 will always return black.
+   */
+  shade(amount = 10): FastColor {
+    return this.mix({ r: 0, g: 0, b: 0, a: 1 }, amount);
   }
 
   onBackground(background: ColorInput): FastColor {
@@ -331,6 +318,30 @@ export class FastColor {
     });
   }
 
+  // ======================= Status =======================
+  isDark(): boolean {
+    return this.getBrightness() < 128;
+  }
+
+  isLight(): boolean {
+    return this.getBrightness() >= 128;
+  }
+
+  // ======================== MISC ========================
+  equals(other: FastColor): boolean {
+    return (
+      this.r === other.r &&
+      this.g === other.g &&
+      this.b === other.b &&
+      this.a === other.a
+    );
+  }
+
+  clone(): FastColor {
+    return new FastColor(this);
+  }
+
+  // ======================= Format =======================
   toHexString(): string {
     let hex = '#';
     const rHex = (this.r || 0).toString(16);
@@ -394,6 +405,14 @@ export class FastColor {
 
   toString(): string {
     return this.toRgbString();
+  }
+
+  // ====================== Privates ======================
+  /** Return a new FastColor object with one channel changed */
+  _sc(rgb: string, value: number, max?: number): FastColor {
+    const clone = this.clone();
+    clone[rgb] = limitRange(value, max);
+    return clone;
   }
 
   private getMax() {
