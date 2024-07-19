@@ -168,9 +168,9 @@ export class FastColor {
   }
 
   setHue(value: number) {
-    const hsl = this.toHsl();
-    hsl.h = value;
-    return new FastColor(hsl);
+    const hsv = this.toHsv();
+    hsv.h = value;
+    return new FastColor(hsv);
   }
 
   // ======================= Getter =======================
