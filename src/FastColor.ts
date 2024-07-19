@@ -1,5 +1,7 @@
 import type { ColorInput, HSL, HSV, OptionalA, RGB } from './types';
 
+type Constructor<T> = new (...args: any[]) => T;
+
 type ParseNumber = (num: number, txt: string, index: number) => number;
 
 /**
@@ -170,7 +172,7 @@ export class FastColor {
   setHue(value: number) {
     const hsv = this.toHsv();
     hsv.h = value;
-    return new FastColor(hsv);
+    return this._c(hsv);
   }
 
   // ======================= Getter =======================
@@ -260,7 +262,7 @@ export class FastColor {
     if (l < 0) {
       l = 0;
     }
-    return new FastColor({ h, s, l, a: this.a });
+    return this._c({ h, s, l, a: this.a });
   }
 
   lighten(amount = 10): FastColor {
@@ -270,7 +272,7 @@ export class FastColor {
     if (l > 1) {
       l = 1;
     }
-    return new FastColor({ h, s, l, a: this.a });
+    return this._c({ h, s, l, a: this.a });
   }
 
   /**
@@ -278,7 +280,7 @@ export class FastColor {
    * 0 means no mixing (return current color).
    */
   mix(input: ColorInput, amount = 50): FastColor {
-    const color = new FastColor(input);
+    const color = this._c(input);
 
     const p = amount / 100;
     const rgba = {
@@ -288,7 +290,7 @@ export class FastColor {
       a: (color.a - this.a) * p + this.a,
     };
 
-    return new FastColor(rgba);
+    return this._c(rgba);
   }
 
   /**
@@ -308,13 +310,19 @@ export class FastColor {
   }
 
   onBackground(background: ColorInput): FastColor {
-    const bg = new FastColor(background);
+    const bg = this._c(background);
     const alpha = this.a + bg.a * (1 - this.a);
 
-    return new FastColor({
-      r: Math.round((this.r * this.a + bg.r * bg.a * (1 - this.a)) / alpha),
-      g: Math.round((this.g * this.a + bg.g * bg.a * (1 - this.a)) / alpha),
-      b: Math.round((this.b * this.a + bg.b * bg.a * (1 - this.a)) / alpha),
+    const calc = (key: string) => {
+      return Math.round(
+        (this[key] * this.a + bg[key] * bg.a * (1 - this.a)) / alpha,
+      );
+    };
+
+    return this._c({
+      r: calc('r'),
+      g: calc('g'),
+      b: calc('b'),
       a: alpha,
     });
   }
@@ -338,8 +346,8 @@ export class FastColor {
     );
   }
 
-  clone(): FastColor {
-    return new FastColor(this);
+  clone(): this {
+    return this._c(this);
   }
 
   // ======================= Format =======================
@@ -410,10 +418,14 @@ export class FastColor {
 
   // ====================== Privates ======================
   /** Return a new FastColor object with one channel changed */
-  _sc(rgb: string, value: number, max?: number): FastColor {
+  private _sc(rgb: string, value: number, max?: number): FastColor {
     const clone = this.clone();
     clone[rgb] = limitRange(value, max);
     return clone;
+  }
+
+  private _c(input: ColorInput): this {
+    return new (this.constructor as Constructor<this>)(input);
   }
 
   private getMax() {
