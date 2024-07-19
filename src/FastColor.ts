@@ -101,11 +101,15 @@ export class FastColor {
   private _brightness?: number;
 
   constructor(input: ColorInput) {
+    /**
+     * e.g. 'rgb' -> { r: 0, g: 0, b: 0 }
+     */
+    function matchFormat(str: string) {
+      return str.split('').every((c) => c in (input as object));
+    }
+
     if (!input) {
-      this.r = 0;
-      this.g = 0;
-      this.b = 0;
-      this.a = 1;
+      // Do nothing since already initialized
     } else if (typeof input === 'string') {
       const trimStr = input.trim();
 
@@ -122,15 +126,15 @@ export class FastColor {
       } else if (matchPrefix('hsv') || matchPrefix('hsb')) {
         this.fromHsvString(trimStr);
       }
-    } else if ('r' in input && 'g' in input && 'b' in input) {
-      this.setR(input.r);
-      this.setG(input.g);
-      this.b = input.b;
-      this.a = typeof input.a === 'number' ? input.a : 1;
-    } else if ('l' in input && 'h' in input && 's' in input) {
-      this.fromHsl(input);
-    } else if ('v' in input && 'h' in input && 's' in input) {
-      this.fromHsv(input);
+    } else if (matchFormat('rgb')) {
+      this.setR((input as RGB).r);
+      this.setG((input as RGB).g);
+      this.setB((input as RGB).b);
+      this.setAlpha(typeof input.a === 'number' ? input.a : 1);
+    } else if (matchFormat('hsl')) {
+      this.fromHsl(input as HSL);
+    } else if (matchFormat('hsv')) {
+      this.fromHsv(input as HSV);
     } else {
       throw new Error(
         '@ant-design/fast-color: unsupported input ' + JSON.stringify(input),
