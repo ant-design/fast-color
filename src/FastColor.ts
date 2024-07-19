@@ -123,8 +123,8 @@ export class FastColor {
         this.fromHsvString(trimStr);
       }
     } else if ('r' in input && 'g' in input && 'b' in input) {
-      this.setRed(input.r);
-      this.setGreen(input.g);
+      this.setR(input.r);
+      this.setG(input.g);
       this.b = input.b;
       this.a = typeof input.a === 'number' ? input.a : 1;
     } else if ('l' in input && 'h' in input && 's' in input) {
@@ -138,29 +138,17 @@ export class FastColor {
     }
   }
 
-  getRed() {
-    return this.r;
-  }
-
-  setRed(value: number) {
+  setR(value: number) {
     this.r = round255(value);
     return this;
   }
 
-  getGreen() {
-    return this.g;
-  }
-
-  setGreen(value: number) {
+  setG(value: number) {
     this.g = round255(value);
     return this;
   }
 
-  getBlue() {
-    return this.b;
-  }
-
-  setBlue(value: number) {
+  setB(value: number) {
     this.b = round255(value);
     return this;
   }
@@ -246,30 +234,17 @@ export class FastColor {
    * @see http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
    */
   getLuminance(): number {
-    let R;
-    let G;
-    let B;
-    const RsRGB = this.r / 255;
-    const GsRGB = this.g / 255;
-    const BsRGB = this.b / 255;
+    function adjustGamma(raw: number) {
+      const val = raw / 255;
 
-    if (RsRGB <= 0.03928) {
-      R = RsRGB / 12.92;
-    } else {
-      R = Math.pow((RsRGB + 0.055) / 1.055, 2.4);
+      return val <= 0.03928
+        ? val / 12.92
+        : Math.pow((val + 0.055) / 1.055, 2.4);
     }
 
-    if (GsRGB <= 0.03928) {
-      G = GsRGB / 12.92;
-    } else {
-      G = Math.pow((GsRGB + 0.055) / 1.055, 2.4);
-    }
-
-    if (BsRGB <= 0.03928) {
-      B = BsRGB / 12.92;
-    } else {
-      B = Math.pow((BsRGB + 0.055) / 1.055, 2.4);
-    }
+    const R = adjustGamma(this.r);
+    const G = adjustGamma(this.g);
+    const B = adjustGamma(this.b);
 
     return 0.2126 * R + 0.7152 * G + 0.0722 * B;
   }
