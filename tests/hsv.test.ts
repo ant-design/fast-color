@@ -23,4 +23,16 @@ describe('hsv', () => {
       a: 1,
     });
   });
+
+  it('should be same RGB', () => {
+    const base = new FastColor({
+      h: 180,
+      s: 0,
+      v: 0,
+    });
+
+    const turn = base.setH(0);
+
+    expect(base.toHexString()).toEqual(turn.toHexString());
+  });
 });

@@ -18,23 +18,23 @@ describe('@ctrl/tinycolor compatibility', () => {
       g: 204,
       r: 102,
     });
-    const color2 = color1.clone();
+    let color2 = color1.clone();
     expect(color2.toRgb()).toEqual({
       a: 1,
       b: 255,
       g: 204,
       r: 102,
     });
-    color2.setAlpha(0.5);
+    color2 = color2.setA(0.5);
     expect(color2.toString()).toBe('rgba(102,204,255,0.5)');
   });
 
   it('should parse hex', () => {
     expect(new FastColor('#000').toHexString()).toBe('#000000');
     expect(new FastColor('#0000').toHexString()).toBe('#00000000');
-    expect(new FastColor('#000').getAlpha()).toBe(1);
+    expect(new FastColor('#000').a).toBe(1);
     // Not sure this is expected behavior
-    expect(new FastColor('#0000').getAlpha()).toBe(0);
+    expect(new FastColor('#0000').a).toBe(0);
   });
 
   it('should parse rgb', () => {
@@ -112,31 +112,31 @@ describe('@ctrl/tinycolor compatibility', () => {
   });
 
   it('should get alpha', () => {
-    const hexSetter = new FastColor('rgba(255,0,0,1)');
+    let hexSetter = new FastColor('rgba(255,0,0,1)');
     // Alpha should start as 1
-    expect(hexSetter.getAlpha()).toBe(1);
-    hexSetter.setAlpha(0.9);
+    expect(hexSetter.a).toBe(1);
+    hexSetter = hexSetter.setA(0.9);
     // setAlpha should change alpha value
-    expect(hexSetter.getAlpha()).toBe(0.9);
-    hexSetter.setAlpha(0.5);
+    expect(hexSetter.a).toBe(0.9);
+    hexSetter = hexSetter.setA(0.5);
     // setAlpha should change alpha value
-    expect(hexSetter.getAlpha()).toBe(0.5);
+    expect(hexSetter.a).toBe(0.5);
   });
 
   it('should set alpha', () => {
-    const hexSetter = new FastColor('rgba(255,0,0,1)');
+    let hexSetter = new FastColor('rgba(255,0,0,1)');
     // Alpha should start as 1
     expect(hexSetter.a).toBe(1);
-    hexSetter.setAlpha(0.5);
+    hexSetter = hexSetter.setA(0.5);
     // setAlpha should change alpha value
     expect(hexSetter.a).toBe(0.5);
-    hexSetter.setAlpha(0);
+    hexSetter = hexSetter.setA(0);
     // setAlpha should change alpha value
     expect(hexSetter.a).toBe(0);
-    hexSetter.setAlpha(-1);
+    hexSetter = hexSetter.setA(-1);
     // setAlpha with value < 0 is corrected to 0
     expect(hexSetter.a).toBe(0);
-    hexSetter.setAlpha(2);
+    hexSetter = hexSetter.setA(2);
     // setAlpha with value > 1 is corrected to 1
     expect(hexSetter.a).toBe(1);
   });

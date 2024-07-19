@@ -124,10 +124,11 @@ export class FastColor {
         this.fromHsvString(trimStr);
       }
     } else if (matchFormat('rgb')) {
-      this.setR((input as RGB).r);
-      this.setG((input as RGB).g);
-      this.setB((input as RGB).b);
-      this.setAlpha(typeof input.a === 'number' ? input.a : 1);
+      this.r = limitRange((input as RGB).r);
+      this.g = limitRange((input as RGB).g);
+      this.b = limitRange((input as RGB).b);
+      this.a =
+        typeof input.a === 'number' ? limitRange((input as RGB).a, 1) : 1;
     } else if (matchFormat('hsl')) {
       this.fromHsl(input as HSL);
     } else if (matchFormat('hsv')) {
@@ -139,28 +140,32 @@ export class FastColor {
     }
   }
 
+  _sc(rgb: string, value: number, max?: number): FastColor {
+    const clone = this.clone();
+    clone[rgb] = limitRange(value, max);
+    return clone;
+  }
+
   setR(value: number) {
-    this.r = limitRange(value);
-    return this;
+    return this._sc('r', value);
   }
 
   setG(value: number) {
-    this.g = limitRange(value);
-    return this;
+    return this._sc('g', value);
   }
 
   setB(value: number) {
-    this.b = limitRange(value);
-    return this;
+    return this._sc('b', value);
   }
 
-  getAlpha(): number {
-    return this.a;
+  setA(value: number) {
+    return this._sc('a', value, 1);
   }
 
-  setAlpha(value: number) {
-    this.a = limitRange(value, 1);
-    return this;
+  setH(value: number) {
+    const hsl = this.toHsl();
+    hsl.h = value;
+    return new FastColor(hsl);
   }
 
   clone(): FastColor {
@@ -341,15 +346,17 @@ export class FastColor {
     return hex;
   }
 
+  /** CSS support color pattern */
   toHsl(): HSL {
     return {
       h: this.getHue(),
       s: this.getSaturation(),
       l: this.getLightness(),
-      a: this.getAlpha(),
+      a: this.a,
     };
   }
 
+  /** CSS support color pattern */
   toHslString(): string {
     const h = this.getHue();
     const s = Math.round(this.getSaturation() * 100);
@@ -360,12 +367,13 @@ export class FastColor {
       : `hsl(${h},${s}%,${l}%)`;
   }
 
+  /** Same as toHsb */
   toHsv(): HSV {
     return {
       h: this.getHue(),
       s: this.getSaturation(),
       v: this.getValue(),
-      a: this.getAlpha(),
+      a: this.a,
     };
   }
 
@@ -525,8 +533,8 @@ export class FastColor {
     }
   }
 
-  private fromHsvString(trimed: string) {
-    const cells = splitColorStr(trimed, parseHSVorHSL);
+  private fromHsvString(trimStr: string) {
+    const cells = splitColorStr(trimStr, parseHSVorHSL);
 
     this.fromHsv({
       h: cells[0],
@@ -536,8 +544,8 @@ export class FastColor {
     });
   }
 
-  private fromHslString(trimed: string) {
-    const cells = splitColorStr(trimed, parseHSVorHSL);
+  private fromHslString(trimStr: string) {
+    const cells = splitColorStr(trimStr, parseHSVorHSL);
 
     this.fromHsl({
       h: cells[0],
@@ -547,8 +555,8 @@ export class FastColor {
     });
   }
 
-  private fromRgbString(trimed: string) {
-    const cells = splitColorStr(trimed, (num, txt) =>
+  private fromRgbString(trimStr: string) {
+    const cells = splitColorStr(trimStr, (num, txt) =>
       // Convert percentage to number. e.g. 50% -> 128
       txt.includes('%') ? Math.round((num / 100) * 255) : num,
     );
