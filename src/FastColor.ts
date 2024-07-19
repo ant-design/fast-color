@@ -107,15 +107,6 @@ export class FastColor {
 
     if (!input) {
       // Do nothing since already initialized
-    } else if (input instanceof FastColor) {
-      this.r = input.r;
-      this.g = input.g;
-      this.b = input.b;
-      this.a = input.a;
-      this._h = input._h;
-      this._s = input._s;
-      this._l = input._l;
-      this._v = input._v;
     } else if (typeof input === 'string') {
       const trimStr = input.trim();
 
@@ -132,6 +123,15 @@ export class FastColor {
       } else if (matchPrefix('hsv') || matchPrefix('hsb')) {
         this.fromHsvString(trimStr);
       }
+    } else if (input instanceof FastColor) {
+      this.r = input.r;
+      this.g = input.g;
+      this.b = input.b;
+      this.a = input.a;
+      this._h = input._h;
+      this._s = input._s;
+      this._l = input._l;
+      this._v = input._v;
     } else if (matchFormat('rgb')) {
       this.r = limitRange((input as RGB).r);
       this.g = limitRange((input as RGB).g);
@@ -168,9 +168,9 @@ export class FastColor {
   }
 
   setHue(value: number) {
-    const hsl = this.toHsl();
-    hsl.h = value;
-    return new FastColor(hsl);
+    const hsv = this.toHsv();
+    hsv.h = value;
+    return new FastColor(hsv);
   }
 
   // ======================= Getter =======================
@@ -241,6 +241,7 @@ export class FastColor {
 
   /**
    * Returns the perceived brightness of the color, from 0-255.
+   * Note: this is not the b of HSB
    * @see http://www.w3.org/TR/AERT#color-contrast
    */
   getBrightness(): number {

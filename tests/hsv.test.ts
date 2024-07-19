@@ -47,4 +47,12 @@ describe('hsv', () => {
 
     expect(base.toHsv()).toEqual(turn.toHsv());
   });
+
+  it('setHue should be stable', () => {
+    const base = new FastColor('#1677ff');
+    expect(base.getValue()).toBe(1);
+
+    const turn = base.setHue(233);
+    expect(turn.getValue()).toBe(1);
+  });
 });
