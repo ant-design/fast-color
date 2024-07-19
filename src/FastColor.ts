@@ -37,30 +37,47 @@ function splitColorStr(str: string, parseNum: ParseNumber): number[] {
   return numList;
 }
 
-function inRange(val: number, max = 255, min = 0) {
-  return typeof val === 'number' && val >= min && val <= max;
-}
-
 const parseHSVorHSL: ParseNumber = (num, _, index) =>
   index === 0 ? num : num / 100;
 
+/** round and limit number to integer between 0-255 */
+function limitRange(value: number, max?: number) {
+  const mergedMax = max || 255;
+
+  if (value > mergedMax) {
+    return mergedMax;
+  }
+  if (value < 0) {
+    return 0;
+  }
+  return value;
+}
+
 export class FastColor {
+  /**
+   * All FastColor objects are valid. So isValid is always true. This property is kept to be compatible with TinyColor.
+   */
+  isValid: true;
+
   /**
    * Red, R in RGB
    */
-  r: number;
+  r: number = 0;
+
   /**
    * Green, G in RGB
    */
-  g: number;
+  g: number = 0;
+
   /**
    * Blue, B in RGB
    */
-  b: number;
+  b: number = 0;
+
   /**
    * Alpha/Opacity, A in RGBA/HSLA
    */
-  a: number;
+  a: number = 1;
 
   // HSV privates
   private _h?: number;
@@ -75,11 +92,21 @@ export class FastColor {
   private _brightness?: number;
 
   constructor(input: ColorInput) {
+    /**
+     * Always check 3 char in the object to determine the format.
+     * We not use function in check to save bundle size.
+     * e.g. 'rgb' -> { r: 0, g: 0, b: 0 }.
+     */
+    function matchFormat(str: string) {
+      return (
+        str[0] in (input as object) &&
+        str[1] in (input as object) &&
+        str[2] in (input as object)
+      );
+    }
+
     if (!input) {
-      this.r = 0;
-      this.g = 0;
-      this.b = 0;
-      this.a = 1;
+      // Do nothing since already initialized
     } else if (typeof input === 'string') {
       const trimStr = input.trim();
 
@@ -96,15 +123,15 @@ export class FastColor {
       } else if (matchPrefix('hsv') || matchPrefix('hsb')) {
         this.fromHsvString(trimStr);
       }
-    } else if ('r' in input && 'g' in input && 'b' in input) {
-      this.r = input.r;
-      this.g = input.g;
-      this.b = input.b;
-      this.a = typeof input.a === 'number' ? input.a : 1;
-    } else if ('l' in input && 'h' in input && 's' in input) {
-      this.fromHsl(input);
-    } else if ('v' in input && 'h' in input && 's' in input) {
-      this.fromHsv(input);
+    } else if (matchFormat('rgb')) {
+      this.setR((input as RGB).r);
+      this.setG((input as RGB).g);
+      this.setB((input as RGB).b);
+      this.setAlpha(typeof input.a === 'number' ? input.a : 1);
+    } else if (matchFormat('hsl')) {
+      this.fromHsl(input as HSL);
+    } else if (matchFormat('hsv')) {
+      this.fromHsv(input as HSV);
     } else {
       throw new Error(
         '@ant-design/fast-color: unsupported input ' + JSON.stringify(input),
@@ -112,41 +139,28 @@ export class FastColor {
     }
   }
 
-  /**
-   * Hue, H in HSL/HSV
-   */
-  get h() {
-    return this.getHue();
+  setR(value: number) {
+    this.r = limitRange(value);
+    return this;
   }
 
-  /**
-   * Saturation, S in HSL/HSV
-   */
-  get s() {
-    return this.getSaturation();
+  setG(value: number) {
+    this.g = limitRange(value);
+    return this;
   }
 
-  /**
-   * Lightness, L in HSL
-   */
-  get l() {
-    return this.getLightness();
+  setB(value: number) {
+    this.b = limitRange(value);
+    return this;
   }
 
-  /**
-   * Value, V in HSV
-   */
-  get v() {
-    return this.getValue();
+  getAlpha(): number {
+    return this.a;
   }
 
-  get isValid() {
-    return (
-      inRange(this.r) &&
-      inRange(this.g) &&
-      inRange(this.b) &&
-      inRange(this.a, 1)
-    );
+  setAlpha(value: number) {
+    this.a = limitRange(value, 1);
+    return this;
   }
 
   clone(): FastColor {
@@ -202,23 +216,18 @@ export class FastColor {
    * Mix the current color a given amount with another color, from 0 to 100.
    * 0 means no mixing (return current color).
    */
-  mix(color: ColorInput, amount = 50): FastColor {
-    const rgb1 = this.toRgb();
-    const rgb2 = new FastColor(color).toRgb();
+  mix(input: ColorInput, amount = 50): FastColor {
+    const color = new FastColor(input);
 
     const p = amount / 100;
     const rgba = {
-      r: (rgb2.r - rgb1.r) * p + rgb1.r,
-      g: (rgb2.g - rgb1.g) * p + rgb1.g,
-      b: (rgb2.b - rgb1.b) * p + rgb1.b,
-      a: (rgb2.a - rgb1.a) * p + rgb1.a,
+      r: (color.r - this.r) * p + this.r,
+      g: (color.g - this.g) * p + this.g,
+      b: (color.b - this.b) * p + this.b,
+      a: (color.a - this.a) * p + this.a,
     };
 
     return new FastColor(rgba);
-  }
-
-  getAlpha(): number {
-    return this.a;
   }
 
   /**
@@ -226,45 +235,32 @@ export class FastColor {
    * @see http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
    */
   getLuminance(): number {
-    let R;
-    let G;
-    let B;
-    const RsRGB = this.r / 255;
-    const GsRGB = this.g / 255;
-    const BsRGB = this.b / 255;
+    function adjustGamma(raw: number) {
+      const val = raw / 255;
 
-    if (RsRGB <= 0.03928) {
-      R = RsRGB / 12.92;
-    } else {
-      R = Math.pow((RsRGB + 0.055) / 1.055, 2.4);
+      return val <= 0.03928
+        ? val / 12.92
+        : Math.pow((val + 0.055) / 1.055, 2.4);
     }
 
-    if (GsRGB <= 0.03928) {
-      G = GsRGB / 12.92;
-    } else {
-      G = Math.pow((GsRGB + 0.055) / 1.055, 2.4);
-    }
-
-    if (BsRGB <= 0.03928) {
-      B = BsRGB / 12.92;
-    } else {
-      B = Math.pow((BsRGB + 0.055) / 1.055, 2.4);
-    }
+    const R = adjustGamma(this.r);
+    const G = adjustGamma(this.g);
+    const B = adjustGamma(this.b);
 
     return 0.2126 * R + 0.7152 * G + 0.0722 * B;
   }
 
   getHue(): number {
     if (typeof this._h === 'undefined') {
-      const delta = this.max - this.min;
+      const delta = this.getMax() - this.getMin();
       if (delta === 0) {
         this._h = 0;
       } else {
         this._h = Math.round(
           60 *
-            (this.r === this.max
+            (this.r === this.getMax()
               ? (this.g - this.b) / delta + (this.g < this.b ? 6 : 0)
-              : this.g === this.max
+              : this.g === this.getMax()
               ? (this.b - this.r) / delta + 2
               : (this.r - this.g) / delta + 4),
         );
@@ -275,11 +271,11 @@ export class FastColor {
 
   getSaturation(): number {
     if (typeof this._s === 'undefined') {
-      const delta = this.max - this.min;
+      const delta = this.getMax() - this.getMin();
       if (delta === 0) {
         this._s = 0;
       } else {
-        this._s = delta / this.max;
+        this._s = delta / this.getMax();
       }
     }
     return this._s;
@@ -287,14 +283,14 @@ export class FastColor {
 
   getLightness(): number {
     if (typeof this._l === 'undefined') {
-      this._l = (this.max + this.min) / 510;
+      this._l = (this.getMax() + this.getMin()) / 510;
     }
     return this._l;
   }
 
   getValue(): number {
     if (typeof this._v === 'undefined') {
-      this._v = this.max / 255;
+      this._v = this.getMax() / 255;
     }
     return this._v;
   }
@@ -330,11 +326,6 @@ export class FastColor {
     });
   }
 
-  setAlpha(alpha: number): FastColor {
-    this.a = alpha;
-    return this;
-  }
-
   toHexString(): string {
     let hex = '#';
     const rHex = (this.r || 0).toString(16);
@@ -352,17 +343,17 @@ export class FastColor {
 
   toHsl(): HSL {
     return {
-      h: this.h,
-      s: this.s,
-      l: this.l,
-      a: this.a,
+      h: this.getHue(),
+      s: this.getSaturation(),
+      l: this.getLightness(),
+      a: this.getAlpha(),
     };
   }
 
   toHslString(): string {
-    const h = this.h;
-    const s = Math.round(this.s * 100);
-    const l = Math.round(this.l * 100);
+    const h = this.getHue();
+    const s = Math.round(this.getSaturation() * 100);
+    const l = Math.round(this.getLightness() * 100);
 
     return this.a !== 1
       ? `hsla(${h},${s}%,${l}%,${this.a})`
@@ -371,10 +362,10 @@ export class FastColor {
 
   toHsv(): HSV {
     return {
-      h: this.h,
-      s: this.s,
-      v: this.v,
-      a: this.a,
+      h: this.getHue(),
+      s: this.getSaturation(),
+      v: this.getValue(),
+      a: this.getAlpha(),
     };
   }
 
@@ -397,14 +388,14 @@ export class FastColor {
     return this.toRgbString();
   }
 
-  private get max() {
+  private getMax() {
     if (typeof this._max === 'undefined') {
       this._max = Math.max(this.r, this.g, this.b);
     }
     return this._max;
   }
 
-  private get min() {
+  private getMin() {
     if (typeof this._min === 'undefined') {
       this._min = Math.min(this.r, this.g, this.b);
     }
@@ -449,38 +440,38 @@ export class FastColor {
       this.b = rgb;
     }
 
+    let r = 0,
+      g = 0,
+      b = 0;
+
     const huePrime = h / 60;
     const chroma = (1 - Math.abs(2 * l - 1)) * s;
     const secondComponent = chroma * (1 - Math.abs((huePrime % 2) - 1));
 
-    this.r = 0;
-    this.g = 0;
-    this.b = 0;
-
     if (huePrime >= 0 && huePrime < 1) {
-      this.r = chroma;
-      this.g = secondComponent;
+      r = chroma;
+      g = secondComponent;
     } else if (huePrime >= 1 && huePrime < 2) {
-      this.r = secondComponent;
-      this.g = chroma;
+      r = secondComponent;
+      g = chroma;
     } else if (huePrime >= 2 && huePrime < 3) {
-      this.g = chroma;
-      this.b = secondComponent;
+      g = chroma;
+      b = secondComponent;
     } else if (huePrime >= 3 && huePrime < 4) {
-      this.g = secondComponent;
-      this.b = chroma;
+      g = secondComponent;
+      b = chroma;
     } else if (huePrime >= 4 && huePrime < 5) {
-      this.r = secondComponent;
-      this.b = chroma;
+      r = secondComponent;
+      b = chroma;
     } else if (huePrime >= 5 && huePrime < 6) {
-      this.r = chroma;
-      this.b = secondComponent;
+      r = chroma;
+      b = secondComponent;
     }
 
     const lightnessModification = l - chroma / 2;
-    this.r = Math.round((this.r + lightnessModification) * 255);
-    this.g = Math.round((this.g + lightnessModification) * 255);
-    this.b = Math.round((this.b + lightnessModification) * 255);
+    this.r = Math.round((r + lightnessModification) * 255);
+    this.g = Math.round((g + lightnessModification) * 255);
+    this.b = Math.round((b + lightnessModification) * 255);
   }
 
   private fromHsv({ h, s, v, a }: OptionalA<HSV>): void {

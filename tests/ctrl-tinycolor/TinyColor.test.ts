@@ -134,20 +134,11 @@ describe('@ctrl/tinycolor compatibility', () => {
     // setAlpha should change alpha value
     expect(hexSetter.a).toBe(0);
     hexSetter.setAlpha(-1);
-    // setAlpha with value < 0 is invalid
-    expect(hexSetter.isValid).toBe(false);
+    // setAlpha with value < 0 is corrected to 0
+    expect(hexSetter.a).toBe(0);
     hexSetter.setAlpha(2);
-    // setAlpha with value > 1 is invalid
-    expect(hexSetter.isValid).toBe(false);
-    hexSetter.setAlpha(undefined);
-    // setAlpha with invalid value is invalid
-    expect(hexSetter.isValid).toBe(false);
-    hexSetter.setAlpha(null as any);
-    // setAlpha with invalid value is invalid
-    expect(hexSetter.isValid).toBe(false);
-    hexSetter.setAlpha('test' as any);
-    // setAlpha with invalid value is invalid
-    expect(hexSetter.isValid).toBe(false);
+    // setAlpha with value > 1 is corrected to 1
+    expect(hexSetter.a).toBe(1);
   });
 
   it('should getBrightness', () => {
