@@ -1,5 +1,7 @@
 import type { ColorInput, HSL, HSV, OptionalA, RGB } from './types';
 
+type Constructor<T> = new (...args: any[]) => T;
+
 type ParseNumber = (num: number, txt: string, index: number) => number;
 
 /**
@@ -338,8 +340,8 @@ export class FastColor {
     );
   }
 
-  clone(): FastColor {
-    return new FastColor(this);
+  clone(): this {
+    return new (this.constructor as Constructor<this>)(this);
   }
 
   // ======================= Format =======================
