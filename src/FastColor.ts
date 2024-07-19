@@ -102,10 +102,16 @@ export class FastColor {
 
   constructor(input: ColorInput) {
     /**
-     * e.g. 'rgb' -> { r: 0, g: 0, b: 0 }
+     * Always check 3 char in the object to determine the format.
+     * We not use function in check to save bundle size.
+     * e.g. 'rgb' -> { r: 0, g: 0, b: 0 }.
      */
     function matchFormat(str: string) {
-      return str.split('').every((c) => c in (input as object));
+      return (
+        str[0] in (input as object) &&
+        str[1] in (input as object) &&
+        str[2] in (input as object)
+      );
     }
 
     if (!input) {
