@@ -41,20 +41,11 @@ const parseHSVorHSL: ParseNumber = (num, _, index) =>
   index === 0 ? num : num / 100;
 
 /** round and limit number to integer between 0-255 */
-function round255(value: number) {
-  if (value > 255) {
-    return 255;
-  }
-  if (value < 0) {
-    return 0;
-  }
-  return Math.round(value);
-}
+function limitRange(value: number, max?: number) {
+  const mergedMax = max || 255;
 
-/** limit number between 0-1 */
-function limit1(value: number) {
-  if (value > 1) {
-    return 1;
+  if (value > mergedMax) {
+    return mergedMax;
   }
   if (value < 0) {
     return 0;
@@ -149,17 +140,17 @@ export class FastColor {
   }
 
   setR(value: number) {
-    this.r = round255(value);
+    this.r = limitRange(value);
     return this;
   }
 
   setG(value: number) {
-    this.g = round255(value);
+    this.g = limitRange(value);
     return this;
   }
 
   setB(value: number) {
-    this.b = round255(value);
+    this.b = limitRange(value);
     return this;
   }
 
@@ -168,7 +159,7 @@ export class FastColor {
   }
 
   setAlpha(value: number) {
-    this.a = limit1(value);
+    this.a = limitRange(value, 1);
     return this;
   }
 
