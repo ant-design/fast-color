@@ -255,7 +255,7 @@ export class FastColor {
 
   // ======================== Func ========================
 
-  darken(amount = 10): FastColor {
+  darken(amount = 10) {
     const h = this.getHue();
     const s = this.getSaturation();
     let l = this.getLightness() - amount / 100;
@@ -265,7 +265,7 @@ export class FastColor {
     return this._c({ h, s, l, a: this.a });
   }
 
-  lighten(amount = 10): FastColor {
+  lighten(amount = 10) {
     const h = this.getHue();
     const s = this.getSaturation();
     let l = this.getLightness() + amount / 100;
@@ -279,7 +279,7 @@ export class FastColor {
    * Mix the current color a given amount with another color, from 0 to 100.
    * 0 means no mixing (return current color).
    */
-  mix(input: ColorInput, amount = 50): FastColor {
+  mix(input: ColorInput, amount = 50) {
     const color = this._c(input);
 
     const p = amount / 100;
@@ -297,7 +297,7 @@ export class FastColor {
    * Mix the color with pure white, from 0 to 100.
    * Providing 0 will do nothing, providing 100 will always return white.
    */
-  tint(amount = 10): FastColor {
+  tint(amount = 10) {
     return this.mix({ r: 255, g: 255, b: 255, a: 1 }, amount);
   }
 
@@ -305,11 +305,11 @@ export class FastColor {
    * Mix the color with pure black, from 0 to 100.
    * Providing 0 will do nothing, providing 100 will always return black.
    */
-  shade(amount = 10): FastColor {
+  shade(amount = 10) {
     return this.mix({ r: 0, g: 0, b: 0, a: 1 }, amount);
   }
 
-  onBackground(background: ColorInput): FastColor {
+  onBackground(background: ColorInput) {
     const bg = this._c(background);
     const alpha = this.a + bg.a * (1 - this.a);
 
@@ -418,7 +418,7 @@ export class FastColor {
 
   // ====================== Privates ======================
   /** Return a new FastColor object with one channel changed */
-  private _sc(rgb: string, value: number, max?: number): FastColor {
+  private _sc(rgb: string, value: number, max?: number) {
     const clone = this.clone();
     clone[rgb] = limitRange(value, max);
     return clone;
