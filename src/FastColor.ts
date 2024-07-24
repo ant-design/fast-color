@@ -4,6 +4,8 @@ type Constructor<T> = new (...args: any[]) => T;
 
 type ParseNumber = (num: number, txt: string, index: number) => number;
 
+const round = Math.round;
+
 /**
  * Support format, alpha unit will check the % mark:
  * - rgba(102, 204, 255, .5)      -> [102, 204, 255, 0.5]
@@ -202,7 +204,7 @@ export class FastColor {
       if (delta === 0) {
         this._h = 0;
       } else {
-        this._h = Math.round(
+        this._h = round(
           60 *
             (this.r === this.getMax()
               ? (this.g - this.b) / delta + (this.g < this.b ? 6 : 0)
@@ -283,11 +285,13 @@ export class FastColor {
     const color = this._c(input);
 
     const p = amount / 100;
+    const calc = (key: string) => (color[key] - this[key]) * p + this[key];
+
     const rgba = {
-      r: (color.r - this.r) * p + this.r,
-      g: (color.g - this.g) * p + this.g,
-      b: (color.b - this.b) * p + this.b,
-      a: (color.a - this.a) * p + this.a,
+      r: round(calc('r')),
+      g: round(calc('g')),
+      b: round(calc('b')),
+      a: round(calc('a') * 100) / 100,
     };
 
     return this._c(rgba);
@@ -314,7 +318,7 @@ export class FastColor {
     const alpha = this.a + bg.a * (1 - this.a);
 
     const calc = (key: string) => {
-      return Math.round(
+      return round(
         (this[key] * this.a + bg[key] * bg.a * (1 - this.a)) / alpha,
       );
     };
@@ -360,7 +364,7 @@ export class FastColor {
     const bHex = (this.b || 0).toString(16);
     hex += bHex.length === 2 ? bHex : '0' + bHex;
     if (typeof this.a === 'number' && this.a >= 0 && this.a < 1) {
-      const aHex = Math.round(this.a * 255).toString(16);
+      const aHex = round(this.a * 255).toString(16);
       hex += aHex.length === 2 ? aHex : '0' + aHex;
     }
     return hex;
@@ -379,8 +383,8 @@ export class FastColor {
   /** CSS support color pattern */
   toHslString(): string {
     const h = this.getHue();
-    const s = Math.round(this.getSaturation() * 100);
-    const l = Math.round(this.getLightness() * 100);
+    const s = round(this.getSaturation() * 100);
+    const l = round(this.getLightness() * 100);
 
     return this.a !== 1
       ? `hsla(${h},${s}%,${l}%,${this.a})`
@@ -474,7 +478,7 @@ export class FastColor {
     this.a = typeof a === 'number' ? a : 1;
 
     if (s <= 0) {
-      const rgb = Math.round(l * 255);
+      const rgb = round(l * 255);
       this.r = rgb;
       this.g = rgb;
       this.b = rgb;
@@ -509,9 +513,9 @@ export class FastColor {
     }
 
     const lightnessModification = l - chroma / 2;
-    this.r = Math.round((r + lightnessModification) * 255);
-    this.g = Math.round((g + lightnessModification) * 255);
-    this.b = Math.round((b + lightnessModification) * 255);
+    this.r = round((r + lightnessModification) * 255);
+    this.g = round((g + lightnessModification) * 255);
+    this.b = round((b + lightnessModification) * 255);
   }
 
   private fromHsv({ h, s, v, a }: OptionalA<HSV>): void {
@@ -520,7 +524,7 @@ export class FastColor {
     this._v = v;
     this.a = typeof a === 'number' ? a : 1;
 
-    const vv = Math.round(v * 255);
+    const vv = round(v * 255);
     this.r = vv;
     this.g = vv;
     this.b = vv;
@@ -532,9 +536,9 @@ export class FastColor {
     const hh = h / 60;
     const i = Math.floor(hh);
     const ff = hh - i;
-    const p = Math.round(v * (1.0 - s) * 255);
-    const q = Math.round(v * (1.0 - s * ff) * 255);
-    const t = Math.round(v * (1.0 - s * (1.0 - ff)) * 255);
+    const p = round(v * (1.0 - s) * 255);
+    const q = round(v * (1.0 - s * ff) * 255);
+    const t = round(v * (1.0 - s * (1.0 - ff)) * 255);
 
     switch (i) {
       case 0:
@@ -590,7 +594,7 @@ export class FastColor {
   private fromRgbString(trimStr: string) {
     const cells = splitColorStr(trimStr, (num, txt) =>
       // Convert percentage to number. e.g. 50% -> 128
-      txt.includes('%') ? Math.round((num / 100) * 255) : num,
+      txt.includes('%') ? round((num / 100) * 255) : num,
     );
 
     this.r = cells[0];
