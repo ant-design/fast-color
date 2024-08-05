@@ -61,7 +61,7 @@ export class FastColor {
   /**
    * All FastColor objects are valid. So isValid is always true. This property is kept to be compatible with TinyColor.
    */
-  isValid: true;
+  isValid: boolean = true;
 
   /**
    * Red, R in RGB
