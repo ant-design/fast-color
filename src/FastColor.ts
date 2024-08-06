@@ -61,27 +61,27 @@ export class FastColor {
   /**
    * All FastColor objects are valid. So isValid is always true. This property is kept to be compatible with TinyColor.
    */
-  isValid: boolean;
+  isValid: boolean = true;
 
   /**
    * Red, R in RGB
    */
-  r: number;
+  r: number = 0;
 
   /**
    * Green, G in RGB
    */
-  g: number;
+  g: number = 0;
 
   /**
    * Blue, B in RGB
    */
-  b: number;
+  b: number = 0;
 
   /**
    * Alpha/Opacity, A in RGBA/HSLA
    */
-  a: number;
+  a: number = 1;
 
   // HSV privates
   private _h?: number;
@@ -96,12 +96,6 @@ export class FastColor {
   private _brightness?: number;
 
   constructor(input: ColorInput) {
-    this.isValid = true;
-    this.r = 0;
-    this.g = 0;
-    this.b = 0;
-    this.a = 1;
-
     /**
      * Always check 3 char in the object to determine the format.
      * We not use function in check to save bundle size.
