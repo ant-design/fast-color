@@ -12,13 +12,15 @@ describe('hsv', () => {
   });
 
   it('hsv string to hex8', () => {
-    expect(new FastColor('hsv(270, 60%, 40%)').toHex8()).toBe('472966ff');
+    const source = new FastColor('hsv(270, 60%, 40%)').toHex8();
+    expect(source).toBe('472966ff');
+    expect(source).toBe('472966ff');
   });
 
   it('hsv string to hex8 string', () => {
-    expect(new FastColor('hsv(270, 60%, 40%)').toHex8String()).toBe(
-      '#472966ff',
-    );
+    const source = new FastColor('hsv(270, 60%, 40%)');
+    expect(source.toHex8String()).toBe('#472966ff');
+    expect(source.toHex8String(true)).toBe('#472966ff');
   });
 
   it('hsb string to hex', () => {
