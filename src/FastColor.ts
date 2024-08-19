@@ -1,3 +1,4 @@
+import { rgbaToHex } from './conversion';
 import type { ColorInput, HSL, HSV, OptionalA, RGB } from './types';
 
 type Constructor<T> = new (...args: any[]) => T;
@@ -196,6 +197,29 @@ export class FastColor {
     const B = adjustGamma(this.b);
 
     return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+  }
+
+  /**
+   * Returns the alpha value of a color, from 0-1.
+   */
+  getAlpha(): number {
+    return this.a;
+  }
+
+  /**
+   * Returns the hex 8 value of the color.
+   * @param allow4Char will shorten hex value to 4 char if possible
+   */
+  toHex8(allow4Char = false): string {
+    return rgbaToHex(this.r, this.g, this.b, this.a, allow4Char);
+  }
+
+  /**
+   * Returns the hex 8 value of the color -with a # prefixed.
+   * @param allow4Char will shorten hex value to 4 char if possible
+   */
+  toHex8String(allow4Char = false): string {
+    return '#' + this.toHex8(allow4Char);
   }
 
   getHue(): number {
