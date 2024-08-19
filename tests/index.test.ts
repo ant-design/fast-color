@@ -9,4 +9,9 @@ describe('index', () => {
 
     expect(mixed.toRgbString()).toBe('rgba(128,128,128,0.52)');
   });
+
+  it('getAlpha should return correct', () => {
+    const source = new FastColor('rgba(255, 255, 255, 0.1128)');
+    expect(source.getAlpha()).toBe(0.1128);
+  });
 });

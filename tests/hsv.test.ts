@@ -11,6 +11,16 @@ describe('hsv', () => {
     expect(new FastColor('hsv(270, 60%, 40%)').toHexString()).toBe('#472966');
   });
 
+  it('hsv string to hex8', () => {
+    expect(new FastColor('hsv(270, 60%, 40%)').toHex8()).toBe('472966ff');
+  });
+
+  it('hsv string to hex8 string', () => {
+    expect(new FastColor('hsv(270, 60%, 40%)').toHex8String()).toBe(
+      '#472966ff',
+    );
+  });
+
   it('hsb string to hex', () => {
     expect(new FastColor('hsb(270 60 40)').toHexString()).toBe('#472966');
   });
