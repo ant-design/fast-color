@@ -17,7 +17,7 @@ importers:
         version: 4.1.0
       '@rc-component/father-plugin':
         specifier: ^1.0.3
-        version: 1.0.3(father@4.4.4(@babel/core@7.4.5)(@types/node@22.5.0)(styled-components@6.1.11(react-dom@18.1.0(react@18.1.0))(react@18.1.0))(type-fest@4.20.1)(webpack@5.92.0))
+        version: 1.1.0(father@4.4.4(@babel/core@7.4.5)(@types/node@22.5.0)(styled-components@6.1.11(react-dom@18.1.0(react@18.1.0))(react@18.1.0))(type-fest@4.20.1)(webpack@5.92.0))
       '@types/jest':
         specifier: ^29.5.12
         version: 29.5.12
@@ -1848,8 +1848,8 @@ packages:
     resolution: {integrity: sha512-UA91GwWPhFExt3IizW6bOeY/pQ0BkuNwKjk9iQW9KqxluGCrg4VenZ0/L+2Y0+ZOtme72EVvg6v0zo3AMQRCeA==}
     engines: {node: '>=12'}
 
-  '@rc-component/father-plugin@1.0.3':
-    resolution: {integrity: sha512-5nEgUqcBLTZELXF2qxCMxKII80P57edq9KVQKmthAMFF0Z/m3hKtLrzXRoxRhhCcACNYOR545t/fTUVAPLO6SA==}
+  '@rc-component/father-plugin@1.1.0':
+    resolution: {integrity: sha512-/axZyVOevR9f7+2mN7tQn1WWa0DmW9CyUtb8gcRLe5S9GIsf0pAXdZ7kyPg32nDdDfwIvVBULg5V8iIkQTAA/g==}
     peerDependencies:
       father: ^4.0.0
 
@@ -12044,7 +12044,7 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@rc-component/father-plugin@1.0.3(father@4.4.4(@babel/core@7.4.5)(@types/node@22.5.0)(styled-components@6.1.11(react-dom@18.1.0(react@18.1.0))(react@18.1.0))(type-fest@4.20.1)(webpack@5.92.0))':
+  '@rc-component/father-plugin@1.1.0(father@4.4.4(@babel/core@7.4.5)(@types/node@22.5.0)(styled-components@6.1.11(react-dom@18.1.0(react@18.1.0))(react@18.1.0))(type-fest@4.20.1)(webpack@5.92.0))':
     dependencies:
       father: 4.4.4(@babel/core@7.4.5)(@types/node@22.5.0)(styled-components@6.1.11(react-dom@18.1.0(react@18.1.0))(react@18.1.0))(type-fest@4.20.1)(webpack@5.92.0)
 
