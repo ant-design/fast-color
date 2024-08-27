@@ -8,8 +8,15 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "@/*": ["src/*"],
-      "@@/*": [".dumi/tmp/*"]
-    }
-  }
+      "@/*": [
+        "src/*"
+      ],
+      "@@/*": [
+        ".dumi/tmp/*"
+      ]
+    },
+  },
+  "exclude": [
+    "./bench"
+  ]
 }
