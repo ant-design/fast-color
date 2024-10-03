@@ -13,8 +13,8 @@ Fast color class.
 [npm-url]: http://npmjs.org/package/@ant-design/fast-color
 [github-actions-image]: https://github.com/ant-design/fast-color/workflows/CI/badge.svg
 [github-actions-url]: https://github.com/ant-design/fast-color/actions
-[codecov-image]: https://img.shields.io/codecov/c/github/ant-design/fast-color/master.svg?style=flat-square
-[codecov-url]: https://codecov.io/gh/ant-design/fast-color/branch/master
+[codecov-image]: https://img.shields.io/codecov/c/github/ant-design/fast-color/main.svg?style=flat-square
+[codecov-url]: https://codecov.io/gh/ant-design/fast-color/branch/main
 [david-url]: https://david-dm.org/ant-design/fast-color
 [david-image]: https://david-dm.org/ant-design/fast-color/status.svg?style=flat-square
 [david-dev-url]: https://david-dm.org/ant-design/fast-color?type=dev
