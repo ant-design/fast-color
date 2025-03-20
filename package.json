@@ -1,6 +1,6 @@
 {
   "name": "@ant-design/fast-color",
-  "version": "2.0.6",
+  "version": "3.0.0",
   "description": "fast and small color class",
   "keywords": [
     "react",
@@ -35,16 +35,15 @@
     "coverage": "rc-test --coverage",
     "lint": "eslint src/ tests/ --ext .tsx,.ts,.jsx,.js",
     "now-build": "npm run build",
-    "prepublishOnly": "npm run compile && np --yolo --no-publish",
+    "prepublishOnly": "npm run compile && rc-np",
     "start": "dumi dev",
     "test": "rc-test"
   },
-  "dependencies": {
-    "@babel/runtime": "^7.24.7"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@ctrl/tinycolor": "^4.1.0",
-    "@rc-component/father-plugin": "^1.0.3",
+    "@rc-component/father-plugin": "^2.0.4",
+    "@rc-component/np": "^1.0.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.1.0",
     "@umijs/fabric": "^4.0.1",
@@ -53,7 +52,6 @@
     "dumi": "^2.3.8",
     "eslint": "^8.57.0",
     "father": "^4.4.4",
-    "np": "^10.0.5",
     "rc-test": "^7.0.15",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
