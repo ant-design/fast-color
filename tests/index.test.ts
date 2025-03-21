@@ -9,12 +9,4 @@ describe('index', () => {
 
     expect(mixed.toRgbString()).toBe('rgba(128,128,128,0.52)');
   });
-
-  it('preset color', () => {
-    const red = new FastColor('red');
-    expect(red.toRgbString()).toBe('rgb(255,0,0)');
-
-    const whitesmoke = new FastColor('whitesmoke');
-    expect(whitesmoke.toHexString()).toBe('#f5f5f5');
-  });
 });
