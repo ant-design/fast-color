@@ -132,8 +132,8 @@ export class FastColor {
         const presetColor = presetColors[trimStr.toLowerCase()];
         if (presetColor) {
           this.fromHexString(
-            // Convert `a9` to `a9a9a9`
-            presetColor[2] ? presetColor : presetColor.repeat(3),
+            // Convert 36 hex to 16 hex
+            parseInt(presetColor, 36).toString(16),
           );
         }
       }
