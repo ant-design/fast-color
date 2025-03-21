@@ -133,7 +133,7 @@ export class FastColor {
         if (presetColor) {
           this.fromHexString(
             // Convert 36 hex to 16 hex
-            parseInt(presetColor, 36).toString(16),
+            parseInt(presetColor, 36).toString(16).padStart(6, '0'),
           );
         }
       }

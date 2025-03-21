@@ -1,3 +1,4 @@
+// 36 Hex to reduce the size of the file
 export default {
   aliceblue: '9ehhb',
   antiquewhite: '9sgk7',
