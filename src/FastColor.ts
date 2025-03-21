@@ -1,3 +1,4 @@
+import presetColors from './presetColors';
 import type { ColorInput, HSL, HSV, OptionalA, RGB } from './types';
 
 type Constructor<T> = new (...args: any[]) => T;
@@ -126,6 +127,15 @@ export class FastColor {
         this.fromHslString(trimStr);
       } else if (matchPrefix('hsv') || matchPrefix('hsb')) {
         this.fromHsvString(trimStr);
+      } else {
+        // From preset color
+        const presetColor = presetColors[trimStr.toLowerCase()];
+        if (presetColor) {
+          this.fromHexString(
+            // Convert 36 hex to 16 hex
+            parseInt(presetColor, 36).toString(16).padStart(6, '0'),
+          );
+        }
       }
     } else if (input instanceof FastColor) {
       this.r = input.r;
