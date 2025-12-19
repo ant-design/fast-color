@@ -55,4 +55,11 @@ describe('hsv', () => {
     const turn = base.setHue(233);
     expect(turn.getValue()).toBe(1);
   });
+
+  it('normalizes H outside range for HSV (object input)', () => {
+    // -60 -> 300 (magenta)
+    expect(new FastColor({ h: -60, s: 1, v: 1 }).toHexString()).toBe('#ff00ff');
+    // 420 -> 60 (yellow)
+    expect(new FastColor({ h: 420, s: 1, v: 1 }).toHexString()).toBe('#ffff00');
+  });
 });
