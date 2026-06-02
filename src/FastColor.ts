@@ -216,14 +216,21 @@ export class FastColor {
       if (delta === 0) {
         this._h = 0;
       } else {
-        this._h = round(
-          60 *
-            (this.r === this.getMax()
-              ? (this.g - this.b) / delta + (this.g < this.b ? 6 : 0)
-              : this.g === this.getMax()
-              ? (this.b - this.r) / delta + 2
-              : (this.r - this.g) / delta + 4),
-        );
+        // `round` can return 360 for hues just below the boundary
+        // (e.g. #DB393A computes 359.63 → round → 360). Hue lives in
+        // [0, 360); leaving 360 causes downstream `fromHsv` to fall into
+        // the wrong sector (h=360 → i=6 → default branch, painting a red
+        // as magenta). Wrap with `% 360` so 360 normalises back to 0.
+        // See https://github.com/ant-design/ant-design/issues/58039
+        this._h =
+          round(
+            60 *
+              (this.r === this.getMax()
+                ? (this.g - this.b) / delta + (this.g < this.b ? 6 : 0)
+                : this.g === this.getMax()
+                ? (this.b - this.r) / delta + 2
+                : (this.r - this.g) / delta + 4),
+          ) % 360;
       }
     }
     return this._h;
