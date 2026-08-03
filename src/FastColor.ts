@@ -225,6 +225,7 @@ export class FastColor {
               : (this.r - this.g) / delta + 4),
         );
       }
+      this._h %= 360;
     }
     return this._h;
   }
