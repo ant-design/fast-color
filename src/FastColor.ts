@@ -216,14 +216,27 @@ export class FastColor {
       if (delta === 0) {
         this._h = 0;
       } else {
-        this._h = round(
-          60 *
-            (this.r === this.getMax()
-              ? (this.g - this.b) / delta + (this.g < this.b ? 6 : 0)
-              : this.g === this.getMax()
-              ? (this.b - this.r) / delta + 2
-              : (this.r - this.g) / delta + 4),
-        );
+        // `round` can push hues just below the upper boundary out of the
+        // half-open [0, 360) range — e.g. `#DB393A` computes 359.63 which
+        // rounds up to 360. `fromHsv` normalises its own `h` input, so
+        // an internal HSV round-trip within this class recovers, but the
+        // reported bug is that consumers of `getHue()` / `toHsv()` use
+        // the raw value elsewhere (Ant Design's ColorPicker feeds it to
+        // canvas hue-slider math and treats 360 as "past red", painting
+        // the swatch magenta — see the confirmation on
+        // https://github.com/ant-design/ant-design/issues/58039).
+        // Emitting a canonical [0, 360) value from `getHue()` fixes the
+        // downstream miscolouring and matches the range every other
+        // getter on this class already returns.
+        this._h =
+          round(
+            60 *
+              (this.r === this.getMax()
+                ? (this.g - this.b) / delta + (this.g < this.b ? 6 : 0)
+                : this.g === this.getMax()
+                ? (this.b - this.r) / delta + 2
+                : (this.r - this.g) / delta + 4),
+          ) % 360;
       }
     }
     return this._h;
