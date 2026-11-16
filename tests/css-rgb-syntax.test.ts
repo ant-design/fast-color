@@ -140,6 +140,13 @@ describe('css rgb() syntax', () => {
         a: 0.233,
       });
     });
+
+    it('parse negative and clamped numbers', () => {
+      expect(new FastColor('rgb(-20, 10, 10)').toRgbString()).toBe('rgb(0,10,10)');
+      expect(new FastColor('rgba(0, 51, 255, -0.1)').a).toBe(0);
+      expect(new FastColor('rgb(500, 0, 0)').toHexString()).toBe('#ff0000');
+      expect(new FastColor('rgba(0, 51, 255, 2)').toRgbString()).toBe('rgb(0,51,255)');
+    });
   });
 
   it('invalid rgb', () => {

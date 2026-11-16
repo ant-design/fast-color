@@ -24,7 +24,7 @@ function splitColorStr(str: string, parseNum: ParseNumber): number[] {
       .replace(/^[^(]*\((.*)/, '$1')
       // Remove str after `)`
       .replace(/\).*/, '')
-      .match(/\d*\.?\d+%?/g) || [];
+      .match(/[+-]?(?:\d*\.\d+|\d+)%?/g) || [];
   const numList = match.map((item) => parseFloat(item));
 
   for (let i = 0; i < 3; i += 1) {
@@ -47,7 +47,7 @@ const parseHSVorHSL: ParseNumber = (num, _, index) =>
 
 /** round and limit number to integer between 0-255 */
 function limitRange(value: number, max?: number) {
-  const mergedMax = max || 255;
+  const mergedMax = typeof max === 'number' ? max : 255;
 
   if (value > mergedMax) {
     return mergedMax;
@@ -505,13 +505,15 @@ export class FastColor {
 
   private fromHsl({ h: _h, s, l, a }: OptionalA<HSL>): void {
     const h = ((_h % 360) + 360) % 360;
+    const clampedS = limitRange(s, 1);
+    const clampedL = limitRange(l, 1);
     this._h = h;
-    this._hsl_s = s;
-    this._l = l;
-    this.a = typeof a === 'number' ? a : 1;
+    this._hsl_s = clampedS;
+    this._l = clampedL;
+    this.a = typeof a === 'number' ? limitRange(a, 1) : 1;
 
-    if (s <= 0) {
-      const rgb = round(l * 255);
+    if (clampedS <= 0) {
+      const rgb = round(clampedL * 255);
       this.r = rgb;
       this.g = rgb;
       this.b = rgb;
@@ -523,7 +525,7 @@ export class FastColor {
       b = 0;
 
     const huePrime = h / 60;
-    const chroma = (1 - Math.abs(2 * l - 1)) * s;
+    const chroma = (1 - Math.abs(2 * clampedL - 1)) * clampedS;
     const secondComponent = chroma * (1 - Math.abs((huePrime % 2) - 1));
 
     if (huePrime >= 0 && huePrime < 1) {
@@ -546,34 +548,36 @@ export class FastColor {
       b = secondComponent;
     }
 
-    const lightnessModification = l - chroma / 2;
-    this.r = round((r + lightnessModification) * 255);
-    this.g = round((g + lightnessModification) * 255);
-    this.b = round((b + lightnessModification) * 255);
+    const lightnessModification = clampedL - chroma / 2;
+    this.r = limitRange(round((r + lightnessModification) * 255));
+    this.g = limitRange(round((g + lightnessModification) * 255));
+    this.b = limitRange(round((b + lightnessModification) * 255));
   }
 
   private fromHsv({ h: _h, s, v, a }: OptionalA<HSV>): void {
     const h = ((_h % 360) + 360) % 360;
+    const clampedS = limitRange(s, 1);
+    const clampedV = limitRange(v, 1);
     this._h = h;
-    this._hsv_s = s;
-    this._v = v;
-    this.a = typeof a === 'number' ? a : 1;
+    this._hsv_s = clampedS;
+    this._v = clampedV;
+    this.a = typeof a === 'number' ? limitRange(a, 1) : 1;
 
-    const vv = round(v * 255);
+    const vv = round(clampedV * 255);
     this.r = vv;
     this.g = vv;
     this.b = vv;
 
-    if (s <= 0) {
+    if (clampedS <= 0) {
       return;
     }
 
     const hh = h / 60;
     const i = Math.floor(hh);
     const ff = hh - i;
-    const p = round(v * (1.0 - s) * 255);
-    const q = round(v * (1.0 - s * ff) * 255);
-    const t = round(v * (1.0 - s * (1.0 - ff)) * 255);
+    const p = round(clampedV * (1.0 - clampedS) * 255);
+    const q = round(clampedV * (1.0 - clampedS * ff) * 255);
+    const t = round(clampedV * (1.0 - clampedS * (1.0 - ff)) * 255);
 
     switch (i) {
       case 0:
@@ -632,9 +636,9 @@ export class FastColor {
       txt.includes('%') ? round((num / 100) * 255) : num,
     );
 
-    this.r = cells[0];
-    this.g = cells[1];
-    this.b = cells[2];
-    this.a = cells[3];
+    this.r = limitRange(cells[0]);
+    this.g = limitRange(cells[1]);
+    this.b = limitRange(cells[2]);
+    this.a = limitRange(cells[3], 1);
   }
 }
