@@ -140,5 +140,10 @@ describe('css hsl() syntax', () => {
         new FastColor('hsla(270deg, 60%, 40%, 23.3%)').toHslString(),
       ).toEqual('hsla(270,60%,40%,0.233)');
     });
+
+    it('parse negative hue', () => {
+      expect(new FastColor('hsl(-120, 100%, 50%)').toHexString()).toBe('#0000ff');
+      expect(new FastColor('hsl(-60deg 100% 50%)').toHexString()).toBe('#ff00ff');
+    });
   });
 });
